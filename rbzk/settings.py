@@ -29,6 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://rbzk.pro", "http://www.rbzk.pro"]
 
+
 # Application definition
 
 INSTALLED_APPS = [
