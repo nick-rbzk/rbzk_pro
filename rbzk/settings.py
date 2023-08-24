@@ -21,12 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-(f*h4u*fx*ho^9r!)mpff*0(0_lhab!!sqc#a83pqctnyv@@51'
+SECRET_KEY = os.environ.get("SECRET_KEY", "&nl8s430j^j8l*je+m&ys5dv#zoy)0a2+x1!m8hx290_sx&0gh")
 
+DEBUG = int(os.environ.get("DEBUG", default=1))
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://rbzk.pro", "http://www.rbzk.pro"]
 
 
@@ -41,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_celery_beat',
     'gpt',
+    'home',
 ]
 
 MIDDLEWARE = [
@@ -131,7 +135,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
+STATICFILES_DIRS = [
+    BASE_DIR / "assetfiles",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
