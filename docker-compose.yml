@@ -17,6 +17,7 @@ services:
     # env_file is used to manage the env variables of our project
     env_file:
       - ./.env/.dev-sample
+    restart: always
     depends_on:
       - redis
       - db
