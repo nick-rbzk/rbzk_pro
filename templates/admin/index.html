@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+
+{% block nav-sidebar %}
+{% load i18n %}
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
+<nav class="sticky" id="nav-sidebar">
+    <input type="search" id="nav-filter"
+         placeholder="{% translate 'Start typing to filter…' %}"
+         aria-label="{% translate 'Filter navigation items' %}">
+    <div class="module">
+        <table>
+          <caption>Work</caption>
+            <tr>
+                <th scope="row"><a href="{% url 'jobs_page' %}">Spot Jobs</a></th>
+            </tr>
+        </table>
+    </div>
+</nav>
+{% endblock %}

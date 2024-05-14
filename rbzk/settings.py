@@ -30,7 +30,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # DEBUG = True
 
 # ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["http://rbzk.pro", "http://www.rbzk.pro"]
+CSRF_TRUSTED_ORIGINS = ["http://rbzk.pro", "http://www.rbzk.pro", "https://rbzk.pro", "https://www.rbzk.pro"]
 
 
 # Application definition
@@ -62,7 +62,7 @@ ROOT_URLCONF = 'rbzk.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

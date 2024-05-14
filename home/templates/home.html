@@ -33,6 +33,7 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#portfolio">Portfolio</a></li>
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#about">About</a></li>
+                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'admin:index' %}">Admin</a></li>
                         {% if show_contact %}
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#contact">Contact</a></li>
                         {% endif %}
@@ -47,7 +48,7 @@
                 <img class="masthead-avatar mb-5" src="{% static '/home_page/assets/img/avataaars.svg' %}" alt="..." />
                 
                 <!-- Masthead Heading-->
-                <h1 class="masthead-heading text-uppercase mb-0">Welcome! I'm Nick Rebezniuk.</h1>
+                <h1 class="masthead-heading text-uppercase mb-0">Welcome! I'm Nick.</h1>
                 <!-- Icon Divider-->
                 <div class="divider-custom divider-light">
                     <div class="divider-custom-line"></div>
