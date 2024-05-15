@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script>
+        // Ignore this in your implementation
+        window.isMbscDemo = true;
+    </script>
+
+    <title>
+        Time selection
+    </title>
+
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+
+    <!-- Mobiscroll JS and CSS Includes -->
+    <link rel="stylesheet" href="css/mobiscroll.jquery.min.css">
+    <script src="js/mobiscroll.jquery.min.js"></script>
+
+    <style type="text/css">
+            body {
+        margin: 0;
+        padding: 0;
+    }
+
+    button {
+        display: inline-block;
+        margin: 5px 5px 0 0;
+        padding: 10px 30px;
+        outline: 0;
+        border: 0;
+        cursor: pointer;
+        background: #5185a8;
+        color: #fff;
+        text-decoration: none;
+        font-family: arial, verdana, sans-serif;
+        font-size: 14px;
+        font-weight: 100;
+    }
+
+    input {
+        width: 100%;
+        margin: 0 0 5px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 0;
+        font-family: arial, verdana, sans-serif;
+        font-size: 14px;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+    }
+
+    .mbsc-page {
+        padding: 1em;
+    }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div mbsc-page class="demo-time-picker">
+        <div style="height:100%">
+                <label>
+        Time picker
+        <input id="demo-time" mbsc-input data-input-style="outline" data-label-style="stacked" placeholder="Please select..." />
+    </label>
+    
+    <label>
+        24 hour picker 
+        <input id="demo-24h" mbsc-input data-input-style="outline" data-label-style="stacked" placeholder="Please select..." />
+    </label>
+    
+    <label>
+        12 h picker with AM/PM
+        <input id="demo-12h" mbsc-input data-input-style="outline" data-label-style="stacked" placeholder="Please select..." />
+    </label>
+    
+    <label>
+        Hour, Min, Sec
+        <input id="demo-hms" mbsc-input data-input-style="outline" data-label-style="stacked" placeholder="Please select..." />
+    </label>
+      
+        </div>
+    </div>
+
+    <script>
+        
+            mobiscroll.setOptions({
+      locale: mobiscroll.localeEn,      // Specify language like: locale: mobiscroll.localePl or omit setting to use default
+      theme: 'ios',                     // Specify theme like: theme: 'ios' or omit setting to use default
+            themeVariant: 'light'       // More info about themeVariant: https://mobiscroll.com/docs/jquery/datepicker/api#opt-themeVariant
+    });
+    
+    $(function () {
+      $('#demo-time')
+        .mobiscroll()
+        .datepicker({
+          controls: ['time'],
+        });
+    
+      $('#demo-12h')
+        .mobiscroll()
+        .datepicker({
+          controls: ['time'],
+          timeFormat: 'HH:mm',          // More info about timeFormat: https://mobiscroll.com/docs/jquery/datepicker/api#localization-timeFormat
+        });
+    
+      $('#demo-24h')
+        .mobiscroll()
+        .datepicker({
+          controls: ['time'],
+          timeFormat: 'h:mm A',         // More info about timeFormat: https://mobiscroll.com/docs/jquery/datepicker/api#localization-timeFormat
+        });
+    
+      $('#demo-hms')
+        .mobiscroll()
+        .datepicker({
+          controls: ['time'],
+          timeFormat: 'HH:mm:ss',       // More info about timeFormat: https://mobiscroll.com/docs/jquery/datepicker/api#localization-timeFormat
+          headerText: 'Time: {value}',  // More info about headerText: https://mobiscroll.com/docs/jquery/datepicker/api#opt-headerText
+        });
+    });
+      
+    </script>
+
+</body>
+
+</html>
