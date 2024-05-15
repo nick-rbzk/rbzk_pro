@@ -91,6 +91,9 @@
         <script src="{% static '/home_page/jq-ui/jquery-ui.min.js' %}"></script>
         <script>
             function formatTime(val){
+                if(val.length >= 5 && val.indexOf(":") > 0){
+                    return val 
+                }
                 var firstFour = val.substring(0, 4).split("")
                 var hours = null;
                 var mins = null;

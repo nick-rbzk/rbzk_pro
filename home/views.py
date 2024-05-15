@@ -10,8 +10,8 @@ def jobs_page(request):
     context['form'] = JobForm()
     if request.method == "POST":
         data = request.POST
-        job_start = data.get("job_start_date")
-        job_end = data.get("job_end_date")
-        print(job_start)
-        print(job_end)
+        job_start_date = data.get("job_start_date")
+        job_end_date = data.get("job_end_date")
+        print(job_start_date)
+        print(job_end_date)
     return render(request, "jobs.html", context)
