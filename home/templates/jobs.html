@@ -105,14 +105,14 @@
                     <div class="card" style="width: 30rem; margin: 20px">
                         <div class="card-header">
                             <h6>
-                                {{ w.week_start }} --- {{w.week_end}}
+                                {{ w.week_start }} -> {{w.week_end}}
                             </h6>
                         </div>
                         <ul class="list-group list-group-flush">
                             {% for j in w.parkjob_set.all %}
                             <li class="list-group-item">
-                                <bold>{{ forloop.counter }}</bold> | 
-                                {{ j.job_start }} --- {{j.job_end}}
+                                <span class="badge bg-warning text-dark">{{ forloop.counter }}</span> | 
+                                {{ j.job_start }} -> {{j.job_end}}
                             </li>
                             {% endfor %}
                         </ul>
