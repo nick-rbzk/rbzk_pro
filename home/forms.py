@@ -26,3 +26,8 @@ class JobForm(forms.Form):
         'style': 'width: 100%; margin-bottom: 20px', 
         'class': 'form-control'
     })) 
+    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={
+        'placeholder': "Notes",
+        'style': 'width: 100%; margin-bottom: 20px', 
+        'class': 'form-control'
+    }))
