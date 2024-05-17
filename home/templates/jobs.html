@@ -3,6 +3,7 @@
 {% load job_duration %}
 {% load income %}
 {% load job_income %}
+{% load date_format %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -29,6 +30,15 @@
             .custom-button {
                 width: 100%;
             }
+            .flex-container{
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-evenly;
+            }
+            .flex-container .custom-card{
+                    margin: 10px 0 10px 0;
+                }
         </style>
     </head>
     <body id="page-top">
@@ -103,38 +113,38 @@
                 <h2 class="page-section-heading text-center text-uppercase text-secondary mb-5">
                     Job Records
                 </h2>
-                <div class="row mt-5">
-                    {% for w in weeks %}
-                    <div class="card" style="width: 43rem; margin: 20px">
-                        <div class="card-header">
-                            <h6>
-                                {{ w.week_start }} -> {{w.week_end}}
-                            </h6>
+                <div class="flex-container mt-5">
+                        {% for w in weeks %}
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h6>
+                                    {{ w.week_start }} -> {{w.week_end}}
+                                </h6>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for j in w.parkjob_set.all %}
+                                <li class="list-group-item">
+                                    <span class="badge bg-warning text-dark">{{ forloop.counter }}</span> | 
+                                    {{ j.job_start|date_format }} -> {{j.job_end|date_format}}
+                                    <span class="badge badge-primary">CONF# {{ j.confirmation}}</span>
+                                    <span class="badge badge-info">{{ j|job_duration }}</span>
+                                    =
+                                    <span class="badge badge-success">{{ j|job_income }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="card-footer">
+                                <h6>Total:
+                                    <span class="badge badge-info">
+                                        {{ w.jobs_time|duration }}
+                                    </span>
+                                    <span class="badge badge-success">
+                                        {{ w.jobs_time|income }}
+                                    </span>
+                                </h6>
+                            </div>
                         </div>
-                        <ul class="list-group list-group-flush">
-                            {% for j in w.parkjob_set.all %}
-                            <li class="list-group-item">
-                                <span class="badge bg-warning text-dark">{{ forloop.counter }}</span> | 
-                                {{ j.job_start }} -> {{j.job_end}}
-                                <span class="badge badge-primary">CONF# {{ j.confirmation}}</span>
-                                <span class="badge badge-info">{{ j|job_duration }}</span>
-                                =
-                                <span class="badge badge-success">{{ j|job_income }}</span>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        <div class="card-footer">
-                            <h6>Total:
-                                <span class="badge badge-info">
-                                    {{ w.jobs_time|duration }}
-                                </span>
-                                <span class="badge badge-success">
-                                    {{ w.jobs_time|income }}
-                                </span>
-                            </h6>
-                        </div>
-                    </div>
-                    {% endfor %}
+                        {% endfor %}
                 </div>
             </div>
         </section>
