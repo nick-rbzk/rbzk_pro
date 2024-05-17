@@ -25,7 +25,12 @@ class JobForm(forms.Form):
         'placeholder': 'End Time', 
         'style': 'width: 100%; margin-bottom: 20px', 
         'class': 'form-control'
-    })) 
+    }))
+    confirmation = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'placeholder': "Confirmation#",
+        'style': 'width: 100%; margin-bottom: 20px', 
+        'class': 'form-control'
+    }))
     notes = forms.CharField(required=False, widget=forms.Textarea(attrs={
         'placeholder': "Notes",
         'style': 'width: 100%; margin-bottom: 20px', 

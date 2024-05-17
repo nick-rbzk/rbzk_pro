@@ -23,6 +23,7 @@ def jobs_page(request):
         job_start_time= data.get("job_start_time")
         job_end_date= data.get("job_end_date")
         job_end_time = data.get("job_end_time")
+        confirmation = data.get("confirmation")
         notes = data.get("notes")
         
         job_start = job_start_date.strip() + " " + job_start_time.strip()
@@ -99,6 +100,7 @@ def jobs_page(request):
         job, created = ParkJob.objects.get_or_create(
             job_start=job_start_datetime,
             job_end=job_end_datetime,
+            confirmation=confirmation,
             notes=notes,
             workweek=week,
         )

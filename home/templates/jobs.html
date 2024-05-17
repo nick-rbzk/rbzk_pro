@@ -1,6 +1,8 @@
 {% load static %}
 {% load duration %}
+{% load job_duration %}
 {% load income %}
+{% load job_income %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -79,6 +81,9 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        {{ form.confirmation }}
+                                    </div>
+                                    <div class="form-group">
                                             {{ form.notes }}
                                     </div>
                                     <div class="form-group">
@@ -102,7 +107,7 @@
                 </h2>
                 <div class="row mt-5">
                     {% for w in weeks %}
-                    <div class="card" style="width: 30rem; margin: 20px">
+                    <div class="card" style="width: 43rem; margin: 20px">
                         <div class="card-header">
                             <h6>
                                 {{ w.week_start }} -> {{w.week_end}}
@@ -113,6 +118,10 @@
                             <li class="list-group-item">
                                 <span class="badge bg-warning text-dark">{{ forloop.counter }}</span> | 
                                 {{ j.job_start }} -> {{j.job_end}}
+                                <span class="badge badge-primary">CONF# {{ j.confirmation}}</span>
+                                <span class="badge badge-info">{{ j|job_duration }}</span>
+                                =
+                                <span class="badge badge-success">{{ j|job_income }}</span>
                             </li>
                             {% endfor %}
                         </ul>

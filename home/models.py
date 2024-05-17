@@ -18,10 +18,11 @@ class WorkWeek(models.Model):
 
 
 class ParkJob(models.Model):
-    job_start   = models.DateTimeField()
-    job_end     = models.DateTimeField()
-    notes       = models.TextField()
-    workweek    = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
+    job_start       = models.DateTimeField()
+    job_end         = models.DateTimeField()
+    confirmation    = models.CharField(max_length=1024, blank=False, null=True)
+    notes           = models.TextField()
+    workweek        = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Job Start: {datetime.strftime(self.job_start, '%m/%d/%Y %H:%M')} \
