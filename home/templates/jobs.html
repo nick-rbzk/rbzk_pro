@@ -118,7 +118,7 @@
                         <div class="card custom-card">
                             <div class="card-header">
                                 <h6>
-                                    {{ w.week_start }} -> {{w.week_end}}
+                                    Week: {{ w.week_start|date_format }} -> {{w.week_end|date_format }}
                                 </h6>
                             </div>
                             <ul class="list-group list-group-flush">
