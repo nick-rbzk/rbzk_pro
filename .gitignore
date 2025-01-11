@@ -1,3 +1,4 @@
 *.pyc
 postgres_data/
 staticfiles/
+compose/production/nginx/certs
