@@ -10,9 +10,6 @@ services:
       - 80:80
       - 5555:5555
       - 15672:15672
-      # - mode: host
-      #   published: 80
-      #   target: 8000
     depends_on:
       - web
       - flower
@@ -91,10 +88,6 @@ services:
       - flower_db:/app/flower_db
     env_file:
       - ./.env/.prod-sample
-    ports:
-      - mode: host
-        published: 5557
-        target: 5555
     depends_on:
       - redis
       - db
