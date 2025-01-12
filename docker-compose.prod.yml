@@ -10,6 +10,7 @@ services:
       - 80:80
       - 5555:5555
       - 15672:15672
+      - mode: host
     depends_on:
       - web
       - flower
