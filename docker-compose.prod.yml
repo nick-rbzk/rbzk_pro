@@ -11,6 +11,9 @@ services:
       - 5555:5555
       - 15672:15672
       - mode: host
+        published: 80
+        target: 80
+
     depends_on:
       - web
       - flower
