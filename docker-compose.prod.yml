@@ -89,6 +89,8 @@ services:
       - flower_db:/app/flower_db
     env_file:
       - ./.env/.prod-sample
+    expose:
+      - 5555
     depends_on:
       - redis
       - db
