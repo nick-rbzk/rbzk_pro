@@ -4,3 +4,4 @@ from .models import *
 
 admin.site.register(WorkWeek)
 admin.site.register(ParkJob)
+admin.site.register(FormSubmission)

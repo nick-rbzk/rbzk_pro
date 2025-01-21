@@ -1,6 +1,11 @@
+import pytz
 from django.db import models
-from datetime import datetime
-# Create your models here.
+from datetime import datetime, timezone
+
+utc = pytz.utc
+utc_dt = datetime.now(timezone.utc)
+eastern = pytz.timezone('US/Eastern')
+loc_dt = utc_dt.astimezone(eastern)
 
 
 class WorkWeek(models.Model):
@@ -27,3 +32,17 @@ class ParkJob(models.Model):
     def __str__(self):
         return f"Job Start: {datetime.strftime(self.job_start, '%m/%d/%Y %H:%M')} \
             Job End: {datetime.strftime(self.job_end, '%m/%d/%Y %H:%M')}"
+
+
+class FormSubmission(models.Model):
+    name = models.CharField(max_length=2024, blank=True, null=True)
+    email = models.CharField(max_length=2024, blank=True, null=True)
+    phone = models.CharField(max_length=2024, blank=True, null=True)
+    message = models.CharField(max_length=2024, blank=True, null=True)
+    navigators_match = models.BooleanField(default=False)
+    navigator_string_from_request = models.CharField(max_length=2024, blank=True, null=True)
+    navigator_string_from_js = models.CharField(max_length=2024, blank=True, null=True)
+    created = models.DateTimeField(default=loc_dt)
+
+    def __str__(self):
+        return f"Submitted by {self.name} on {self.created:%m/%d/%Y - %H:%M}"

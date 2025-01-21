@@ -1,3 +1,6 @@
+import base64
+import json
+
 from django.shortcuts import render
 from datetime import datetime, timedelta
 from django.http import JsonResponse
@@ -8,12 +11,66 @@ from .forms import *
 WEEK_TIME_START = "00:00"
 WEEK_TIME_END = "23:59"
 
+def escape(htmlstring):
+    escapes = {'\"': '&quot;',
+               '\'': '&#39;',
+               '<': '&lt;',
+               '>': '&gt;'}
+    # This is done first to prevent escaping other escapes.
+    htmlstring = htmlstring.replace('&', '&amp;')
+    for seq, esc in escapes.items():
+        htmlstring = htmlstring.replace(seq, esc)
+    return htmlstring
+
 def home_page(request):
+    import datetime
+    import pytz
+
+    utc = pytz.utc
+    utc_dt = datetime.datetime.now(datetime.timezone.utc)
+    eastern = pytz.timezone('US/Eastern')
+    loc_dt = utc_dt.astimezone(eastern)
+    fmt = '%Y-%m-%d %H:%M:%S %Z%z'
+    print(loc_dt.strftime(fmt))
+
+    print(datetime.datetime.now(datetime.timezone.utc))
+    # 2019-09-05 08:10:29.910137+00:00
+
     return render(request, "home.html")
 
 def contact_api(request):
-    print(request.body)
-    return JsonResponse({"hello": "world"})
+    navigator_from_request = request.META['HTTP_USER_AGENT']
+    decoded = request.body.decode('ascii')
+    body = json.loads(decoded)
+    print(body)
+    if "token" in body:
+        b_navigator_js = base64.b64decode(body["token"])
+        navigator_from_js = escape(b_navigator_js.decode('ascii'))
+    if "name" in body["submissionObject"]:
+        name = escape(body["submissionObject"]["name"])
+    if "email" in body["submissionObject"]:
+        email = escape(body["submissionObject"]["email"])
+    if "phone" in body["submissionObject"]:
+        phone = escape(body["submissionObject"]["phone"])
+    if "message" in body["submissionObject"]:
+        message = escape(body["submissionObject"]["message"])
+    if navigator_from_request == navigator_from_js:
+        navigators_match = True
+
+
+    try:
+        FormSubmission.objects.create(
+            name=name,
+            email=email,
+            message=message,
+            phone=phone,
+            navigators_match=navigators_match,
+            navigator_string_from_js=navigator_from_js,
+            navigator_string_from_request=navigator_from_request,
+        )
+    except Exception as e:
+        print(e)
+    return JsonResponse({"response": 200})
 
 def jobs_page(request):
     context = {} 
