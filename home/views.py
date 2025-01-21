@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from datetime import datetime, timedelta
-
+from django.http import JsonResponse
 from .models import *
 from .forms import *
 
@@ -11,6 +11,9 @@ WEEK_TIME_END = "23:59"
 def home_page(request):
     return render(request, "home.html")
 
+def contact_api(request):
+    print(request.body)
+    return JsonResponse({"hello": "world"})
 
 def jobs_page(request):
     context = {} 
