@@ -50,4 +50,4 @@ class FormSubmission(models.Model):
     created = models.DateTimeField(auto_now_add=False, auto_now=False, default=timezone.now)
 
     def __str__(self):
-        return f"Submitted by {self.name} on {timezone.localtime(self.created):%m/%d/%Y %H:%M}"
+        return f"Submitted by {self.name} on {timezone.localtime(self.created):%m/%d/%Y %I:%M %p}"
