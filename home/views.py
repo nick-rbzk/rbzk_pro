@@ -42,7 +42,6 @@ def contact_api(request):
     navigator_from_request = request.META['HTTP_USER_AGENT']
     decoded = request.body.decode('ascii')
     body = json.loads(decoded)
-    print(body)
     if "token" in body:
         b_navigator_js = base64.b64decode(body["token"])
         navigator_from_js = escape(b_navigator_js.decode('ascii'))

@@ -1,12 +1,17 @@
 import pytz
 from django.db import models
-from datetime import datetime, timezone
+from datetime import datetime
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.utils import timezone
 
-utc = pytz.utc
-utc_dt = datetime.now(timezone.utc)
-eastern = pytz.timezone('US/Eastern')
-loc_dt = utc_dt.astimezone(eastern)
 
+def get_local_date_time():
+    utc = pytz.utc
+    utc_dt = datetime.now(timezone.utc)
+    eastern = pytz.timezone('US/Eastern')
+    loc_dt = utc_dt.astimezone(eastern)
+    return loc_dt
 
 class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
@@ -42,7 +47,7 @@ class FormSubmission(models.Model):
     navigators_match = models.BooleanField(default=False)
     navigator_string_from_request = models.CharField(max_length=2024, blank=True, null=True)
     navigator_string_from_js = models.CharField(max_length=2024, blank=True, null=True)
-    created = models.DateTimeField(default=loc_dt)
+    created = models.DateTimeField(auto_now_add=False, auto_now=False, default=timezone.now)
 
     def __str__(self):
-        return f"Submitted by {self.name} on {self.created:%m/%d/%Y - %H:%M}"
+        return f"Submitted by {self.name} on {timezone.localtime(self.created):%m/%d/%Y %H:%M}"
