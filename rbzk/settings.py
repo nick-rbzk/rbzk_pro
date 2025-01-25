@@ -29,6 +29,12 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
+# CSRF_TRUSTED_ORIGINS = ["https://rbzk.pro", "https://www.rbzk.pro"]
+
+SECURE_HSTS_SECONDS = 30 
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Application definition
 
 INSTALLED_APPS = [
