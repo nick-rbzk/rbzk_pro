@@ -7,9 +7,13 @@ set -o nounset
 python /rbzk/manage.py collectstatic --noinput
 python /rbzk/manage.py migrate
 
-# /usr/local/bin/gunicorn rbzk.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --chdir=/rbzk
-/usr/local/bin/gunicorn --bind 0.0.0.0:443 rbzk.wsgi:application --chdir=/rbzk --workers=2  --certfile=/root/rbzk_pro/compose/production/nginx/certs/rbzk_pro.crt --keyfile=/root/rbzk_pro/compose/production/nginx/certs/rbzk_pro.key
+/usr/local/bin/gunicorn rbzk.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --chdir=/rbzk
+# /usr/local/bin/gunicorn \
+    # --bind 0.0.0.0:443 rbzk.wsgi:application  \
+    # --chdir=/rbzk  \
+    # --workers=2   \
+    # --certfile=/root/rbzk_pro/compose/production/nginx/certs/rbzk_pro.crt  \
+    # --keyfile=/root/rbzk_pro/compose/production/nginx/certs/rbzk_pro.key \
     # --ca-certs=/root/rbzk_pro/compose/production/nginx/certs/cert_chain.crt \
     # --access-logfile=/root/app/logs/access.log --error-logfile=/root/app/logs/error.log
     # --daemon \
-    # --chdir=/rbzk

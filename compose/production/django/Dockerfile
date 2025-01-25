@@ -20,6 +20,9 @@ RUN addgroup --system django \
 COPY ./requirements.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
+# copy certificates
+COPY ./compose/production/django/entrypoint /entrypoint
+
 COPY ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
