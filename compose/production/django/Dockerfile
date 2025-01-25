@@ -9,6 +9,7 @@ RUN apt-get update \
   && apt-get install -y libpq-dev \
   # Translations dependencies
   && apt-get install -y gettext \
+  && apt-get install -y  top \
   # cleaning up unused files
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
@@ -57,6 +58,6 @@ COPY . .
 
 RUN chown -R django:django /rbzk
 
-USER django
+USER root
 
 ENTRYPOINT ["/entrypoint"]
