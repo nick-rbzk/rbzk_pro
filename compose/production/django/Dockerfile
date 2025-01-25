@@ -58,6 +58,6 @@ COPY . .
 
 RUN chown -R django:django /rbzk
 
-USER root
+USER django
 
 ENTRYPOINT ["/entrypoint"]
