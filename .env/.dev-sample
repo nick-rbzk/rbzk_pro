@@ -1,5 +1,6 @@
 DEBUG=1
 DJANGO_ALLOWED_HOSTS=*
+DJANGO_CSRF_TRUSTED_ORIGINS="http://rbzk.pro http://www.rbzk.pro https://rbzk.pro https://www.rbzk.pro"
 
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=hello_django
