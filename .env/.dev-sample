@@ -1,6 +1,5 @@
 DEBUG=1
 DJANGO_ALLOWED_HOSTS=*
-DJANGO_CSRF_TRUSTED_ORIGINS=*
 
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=hello_django
