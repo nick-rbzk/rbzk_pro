@@ -1,10 +1,7 @@
 DEBUG=0
 SECRET_KEY=dbaa1_i7%*3r9-=z-+_mz4r-!qeed@(-a_r(g@k8jo8y3r27%m
-DJANGO_ALLOWED_HOSTS="rbzk.pro www.rbzk.pro"
+DJANGO_ALLOWED_HOSTS=*
 
-SECURE_HSTS_SECONDS=30
-SECURE_HSTS_PRELOAD=True
-SECURE_HSTS_INCLUDE_SUBDOMAINS=True
 
 SQL_ENGINE=django.db.backends.postgresql
 SQL_DATABASE=hello_django
