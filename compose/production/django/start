@@ -15,5 +15,5 @@ python /rbzk/manage.py migrate
     --certfile=/rbzk/compose/production/nginx/certs/rbzk_pro.crt  \
     --keyfile=/rbzk/compose/production/nginx/certs/rbzk_pro.key \
     --ca-certs=/rbzk/compose/production/nginx/certs/cert_chain.crt \
-    --access-logfile=/rbzk/logs/access.log --error-logfile=/rbzk/logs/error.log \
+    # --access-logfile=/rbzk/logs/access.log --error-logfile=/rbzk/logs/error.log \
     --daemon \
