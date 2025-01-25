@@ -29,7 +29,7 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = ["http://rbzk.pro", "http://www.rbzk.pro", "https://rbzk.pro", "https://www.rbzk.pro"]
+CSRF_TRUSTED_ORIGINS = ["https://rbzk.pro", "https://www.rbzk.pro"]
 
 
 # Application definition
