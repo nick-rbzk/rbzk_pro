@@ -1,9 +1,11 @@
 import base64
 import json
+from datetime import datetime, timedelta
 
 from django.shortcuts import render
-from datetime import datetime, timedelta
 from django.http import JsonResponse
+from django.views.decorators.gzip import gzip_page
+
 from .models import *
 from .forms import *
 
@@ -22,20 +24,8 @@ def escape(htmlstring):
         htmlstring = htmlstring.replace(seq, esc)
     return htmlstring
 
+@gzip_page
 def home_page(request):
-    import datetime
-    import pytz
-
-    utc = pytz.utc
-    utc_dt = datetime.datetime.now(datetime.timezone.utc)
-    eastern = pytz.timezone('US/Eastern')
-    loc_dt = utc_dt.astimezone(eastern)
-    fmt = '%Y-%m-%d %H:%M:%S %Z%z'
-    print(loc_dt.strftime(fmt))
-
-    print(datetime.datetime.now(datetime.timezone.utc))
-    # 2019-09-05 08:10:29.910137+00:00
-
     return render(request, "home.html")
 
 def contact_api(request):
