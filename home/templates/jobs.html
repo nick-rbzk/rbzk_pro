@@ -19,13 +19,20 @@
         <!-- Google fonts-->
         <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+
         <!-- Core theme CSS (includes Bootstrap)-->
+        <link type="text/css" rel="stylesheet" href="{% static '/home_page/css/theme-styles.min.css' %}"/>
+        <!-- <link type="text/css" rel="stylesheet" href="{% static '/home_page/css/custom-styles.css' %}"/> -->
+        <!-- <link type="text/css" rel="stylesheet" href="{% static '/home_page/css/styles.css' %}"/> -->
+
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link href="{% static '/home_page/css/styles.css' %}" rel="stylesheet" />
+        
         <link href="{% static '/home_page/jq-ui/jquery-ui.min.css' %}" rel="stylesheet" />
         <link href="{% static '/home_page/jq-ui/jquery-ui.structure.min.css' %}" rel="stylesheet" />
         <link href="{% static '/home_page/jq-ui/jquery-ui.theme.min.css' %}" rel="stylesheet" />
+
 	    <meta name="robots" content="noindex,nofollow">
+
         <style>
             .custom-button {
                 width: 100%;
@@ -38,12 +45,18 @@
             }
             .flex-container .custom-card{
                     margin: 10px 0 10px 0;
-                }
+            }
+            .bold-header{
+                font-weight: bold;
+            }
+            .nav-bar-bg {
+                background-color: rgba(44, 62, 80, 1) !important;
+            }
         </style>
     </head>
     <body id="page-top">
         <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg bg-secondary text-uppercase fixed-top" id="mainNav">
+        <nav class="navbar navbar-expand-lg nav-bar-bg text-uppercase fixed-top" id="mainNav">
             <div class="container">
                 <a class="navbar-brand" href="{% url 'home_page' %}">RBZK</a>
                 <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,9 +79,9 @@
                 <div class="row mt-2">
                     <div class="col-12">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-3 col-xl-4"></div>
-                            <div class="col-10 col-sm-10 col-md-10 col-lg-6 col-xl-4">
-                                <h2 class="page-section-heading text-center text-uppercase text-secondary mb-2">
+                            <div class="col-1 col-sm-1 col-md-2 col-lg-3 col-xl-4"></div>
+                            <div class="col-10 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+                                <h2 class="page-section-heading text-center text-uppercase text-secondary mt-5 mb-2">
                                     Add A Job
                                 </h2>
                                 <form action="{% url 'jobs_page' %}" method="post">
@@ -101,7 +114,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-3 col-xl-4"></div>
+                            <div class="col-1 col-sm-1 col-md-2 col-lg-3 col-xl-4"></div>
                         </div>
                     </div>
                 </div>
@@ -117,7 +130,7 @@
                         {% for w in weeks %}
                         <div class="card custom-card">
                             <div class="card-header">
-                                <h6>
+                                <h6 class="bold-header">
                                     Week: {{ w.week_start|date_format }} -> {{w.week_end|date_format }}
                                 </h6>
                             </div>
@@ -134,7 +147,7 @@
                                 {% endfor %}
                             </ul>
                             <div class="card-footer">
-                                <h6>Total:
+                                <h6 class="bold-header">Total:
                                     <span class="badge badge-info">
                                         {{ w.jobs_time|duration }}
                                     </span>
