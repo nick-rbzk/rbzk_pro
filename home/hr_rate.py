@@ -1,1 +1,0 @@
-HOURLY_RATE = 1000

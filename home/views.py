@@ -144,6 +144,7 @@ def jobs_page(request):
             week_start=week_start_datetime, 
             week_end=week_end_datetime
         )
+        week.save()
 
         # add a job to that week
         job, created = ParkJob.objects.get_or_create(
@@ -153,21 +154,8 @@ def jobs_page(request):
             notes=notes,
             workweek=week,
         )
-        jobs_per_week = week.parkjob_set.all()
-        total_duration = None
-        for job in jobs_per_week:
-            if total_duration is not None:
-                total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
-            else:
-                total_duration = (job.job_end - job.job_start).total_seconds()
-        week.jobs_time = timedelta(seconds=total_duration)
-        week.save()
+        job.save()
         context["weeks"] = WorkWeek.objects.all().reverse()
         context["form"] = JobForm()
         return render(request, "jobs.html", context)
-        # get all the weeks, sort by the latest one.
-        # display weeks and jobs in the template
-        # display total week time in the template
-
-
     return render(request, "jobs.html", context)

@@ -1,6 +1,6 @@
 import pytz
 from django.db import models
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils import timezone
@@ -51,3 +51,17 @@ class FormSubmission(models.Model):
 
     def __str__(self):
         return f"Submitted by {self.name} on {timezone.localtime(self.created):%m/%d/%Y %I:%M %p}"
+
+
+@receiver(post_save, sender=ParkJob)
+def update_week_hours(sender, instance, **kwargs):
+    work_week = instance.workweek
+    jobs_per_week = work_week.parkjob_set.all()
+    total_duration = None
+    for job in jobs_per_week:
+        if total_duration is not None:
+            total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
+        else:
+            total_duration = (job.job_end - job.job_start).total_seconds()
+    work_week.jobs_time = timedelta(seconds=total_duration)
+    work_week.save()

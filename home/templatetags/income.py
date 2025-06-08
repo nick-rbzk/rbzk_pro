@@ -1,6 +1,6 @@
-from django import template
 import math
-from home.hr_rate import HOURLY_RATE
+from django import template
+from rbzk.settings import HOURLY_RATE
 register = template.Library()
 
 @register.filter
