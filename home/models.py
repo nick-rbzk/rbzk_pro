@@ -2,7 +2,7 @@ import pytz
 from django.db import models
 from datetime import datetime, timedelta
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 
 
@@ -64,4 +64,18 @@ def update_week_hours(sender, instance, **kwargs):
         else:
             total_duration = (job.job_end - job.job_start).total_seconds()
     work_week.jobs_time = timedelta(seconds=total_duration)
+    work_week.save()
+
+@receiver(post_delete, sender=ParkJob)
+def update_week_hours(sender, instance, **kwargs):
+    work_week = instance.workweek
+    jobs_per_week = work_week.parkjob_set.all()
+    total_duration = None
+    for job in jobs_per_week:
+        if total_duration is not None:
+            total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
+        else:
+            total_duration = (job.job_end - job.job_start).total_seconds()
+    if total_duration is not None:
+        work_week.jobs_time = timedelta(seconds=total_duration)
     work_week.save()
