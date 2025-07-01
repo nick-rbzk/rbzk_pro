@@ -19,8 +19,8 @@ class WorkWeek(models.Model):
     jobs_time   = models.DurationField(null=True)
     
     def __str__(self):
-        return f"Week Start: {datetime.strftime(self.week_start, '%m/%d/%Y %H:%M')} \
-            Week End: {datetime.strftime(self.week_end, '%m/%d/%Y %H:%M')}"
+        return f"Week Start: {timezone.localtime(self.week_start):'%m/%d/%Y %H:%M'} \
+            Week End: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'}"
     
     class Meta:
         ordering = ["week_end"]
@@ -35,8 +35,11 @@ class ParkJob(models.Model):
     workweek        = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Job Start: {datetime.strftime(self.job_start, '%m/%d/%Y %H:%M')} \
-            Job End: {datetime.strftime(self.job_end, '%m/%d/%Y %H:%M')}"
+        return f"Job Start: {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p} \
+            Job End: {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
+    
+    class Meta:
+        ordering = ["job_end"]
 
 
 class FormSubmission(models.Model):
