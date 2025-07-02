@@ -66,7 +66,7 @@ def jobs_page(request):
     if request.user.is_authenticated:
         context = {}
         context['form'] = JobForm()
-        context["weeks"] = WorkWeek.objects.all().reverse()
+        context["weeks"] = WorkWeek.objects.all()
         context["is_logged_in"] = request.user.is_authenticated
         if request.method == "POST":
             data = request.POST
