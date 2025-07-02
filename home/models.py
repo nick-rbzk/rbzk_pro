@@ -23,7 +23,7 @@ class WorkWeek(models.Model):
             Week End: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'}"
     
     class Meta:
-        ordering = ["week_end"]
+        ordering = ["-week_end"]
 
 
 
@@ -39,7 +39,7 @@ class ParkJob(models.Model):
             Job End: {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
     
     class Meta:
-        ordering = ["job_end"]
+        ordering = ["-job_end"]
 
 
 class FormSubmission(models.Model):
