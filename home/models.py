@@ -19,8 +19,8 @@ class WorkWeek(models.Model):
     jobs_time   = models.DurationField(null=True)
     
     def __str__(self):
-        return f"Week Start: {timezone.localtime(self.week_start):'%m/%d/%Y %H:%M'} \
-            Week End: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'}"
+        return f"START: {timezone.localtime(self.week_start):'%m/%d/%Y %H:%M'}  \
+            |||  END: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'}"
     
     class Meta:
         ordering = ["-week_end"]
@@ -35,8 +35,8 @@ class ParkJob(models.Model):
     workweek        = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Job Start: {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p} \
-            Job End: {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
+        return f"START - {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p}  \
+            |||  END - {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
     
     class Meta:
         ordering = ["-job_end"]
@@ -66,7 +66,8 @@ def update_week_hours(sender, instance, **kwargs):
             total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
         else:
             total_duration = (job.job_end - job.job_start).total_seconds()
-    work_week.jobs_time = timedelta(seconds=total_duration)
+    if total_duration is not None:
+        work_week.jobs_time = timedelta(seconds=total_duration)
     work_week.save()
 
 @receiver(post_delete, sender=ParkJob)
