@@ -1,17 +1,15 @@
 import base64
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.gzip import gzip_page
+from utils.which_week import which_week
 
 from .models import *
 from .forms import *
 
-
-WEEK_TIME_START = "00:00"
-WEEK_TIME_END = "23:59"
 
 def escape(htmlstring):
     escapes = {'\"': '&quot;',
@@ -24,9 +22,11 @@ def escape(htmlstring):
         htmlstring = htmlstring.replace(seq, esc)
     return htmlstring
 
+
 @gzip_page
 def home_page(request):
     return render(request, "home.html")
+
 
 def contact_api(request):
     navigator_from_request = request.META['HTTP_USER_AGENT']
@@ -46,7 +46,6 @@ def contact_api(request):
     if navigator_from_request == navigator_from_js:
         navigators_match = True
 
-
     try:
         FormSubmission.objects.create(
             name=name,
@@ -61,12 +60,12 @@ def contact_api(request):
         print(e)
     return JsonResponse({"response": 200})
 
+
 def jobs_page(request):
-    print(request.user.is_authenticated)
     if request.user.is_authenticated:
         context = {}
         context['form'] = JobForm()
-        context["weeks"] = WorkWeek.objects.all()
+        context["weeks"] = WorkWeek.objects.all().exclude(jobs_time__isnull=True)
         context["is_logged_in"] = request.user.is_authenticated
         if request.method == "POST":
             data = request.POST
@@ -79,84 +78,27 @@ def jobs_page(request):
             
             job_start = job_start_date.strip() + " " + job_start_time.strip()
             job_end = job_end_date.strip() + " " + job_end_time.strip()
-            job_start_datetime = datetime.strptime(job_start, '%m/%d/%Y %H:%M')
-            job_end_datetime = datetime.strptime(job_end, '%m/%d/%Y %H:%M')
+            job_start_datetime = timezone.make_aware(datetime.strptime(job_start, '%m/%d/%Y %H:%M'))
+            job_end_datetime = timezone.make_aware(datetime.strptime(job_end, '%m/%d/%Y %H:%M'))
 
-            if job_end_datetime.weekday() == 0:
-                #print("JOB END is: Monday")
-                week_start_datetime = job_end_datetime - timedelta(days=2)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M') 
-                week_end_datetime = job_end_datetime + timedelta(days=4)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            elif job_end_datetime.weekday() == 1:
-                #print("JOB END is: Tuesday")
-                week_start_datetime = job_end_datetime - timedelta(days=3)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M') 
-                week_end_datetime = job_end_datetime + timedelta(days=3)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            elif job_end_datetime.weekday() == 2:
-                #print("JOB END is: Wednesday")
-                week_start_datetime = job_end_datetime - timedelta(days=4)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M') 
-                week_end_datetime = job_end_datetime + timedelta(days=2)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            elif job_end_datetime.weekday() == 3:
-                #print("JOB END is: Thursday")
-                week_start_datetime = job_end_datetime - timedelta(days=5)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M') 
-                week_end_datetime = job_end_datetime + timedelta(days=1)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            elif job_end_datetime.weekday() == 4:
-                #print("JOB END is: Friday")
-                week_start_datetime = job_end_datetime - timedelta(days=6)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M') 
-                week_end_datetime = job_end_datetime
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            elif job_end_datetime.weekday() == 5:
-                #print("JOB END is: Saturday")
-                week_start_datetime = job_end_datetime
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M')
-
-                week_end_datetime = job_end_datetime + timedelta(days=6)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M')
-            else:
-                #print("JOB END is: Sunday")
-                week_start_datetime = job_end_datetime - timedelta(days=1)
-                week_start = week_start_datetime.strftime("%m/%d/%Y") +" "+ WEEK_TIME_START
-                week_start_datetime = datetime.strptime(week_start, '%m/%d/%Y %H:%M')
-
-                week_end_datetime = job_end_datetime + timedelta(days=5)
-                week_end = week_end_datetime.strftime("%m/%d/%Y") + " " + WEEK_TIME_END
-                week_end_datetime = datetime.strptime(week_end, '%m/%d/%Y %H:%M') 
-
-            # go to db retreive a week according to week_start and week_end
-            week, created = WorkWeek.objects.get_or_create(
-                week_start=week_start_datetime, 
-                week_end=week_end_datetime
-            )
-            week.save()
-
-            # add a job to that week
-            job, created = ParkJob.objects.get_or_create(
-                job_start=job_start_datetime,
-                job_end=job_end_datetime,
-                confirmation=confirmation,
-                notes=notes,
-                workweek=week,
-            )
-            job.save()
+            week_start_datetime, week_end_datetime = which_week(job_end_datetime)
+            if isinstance(week_start_datetime, datetime) and isinstance(week_end_datetime, datetime):
+                week, created = WorkWeek.objects.get_or_create(
+                    week_start=week_start_datetime, 
+                    week_end=week_end_datetime
+                )
+                if not created:
+                    week.save()
+                # add a job to that week
+                job, created = ParkJob.objects.get_or_create(
+                    job_start=job_start_datetime,
+                    job_end=job_end_datetime,
+                    confirmation=confirmation,
+                    notes=notes,
+                    workweek=week,
+                )
+                if not created:
+                    job.save()
             context["weeks"] = WorkWeek.objects.all().reverse()
             context["form"] = JobForm()
             return render(request, "jobs.html", context)
