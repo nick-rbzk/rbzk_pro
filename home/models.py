@@ -81,10 +81,10 @@ def update_week_hours(sender, instance, **kwargs):
     current_parent_week.save()
     #kick off a background task to delete all empty workweeks
     empty_work_weeks = WorkWeek.objects.all().exclude(jobs_time__isnull=False)
-    print("Empty work weeks________________________________________")
+    # print("Empty work weeks________________________________________")
     for e in empty_work_weeks:
-        print(e)
-        print(dir(e))
+        # print(e)
+        # print(dir(e))
         e.delete()
 
 
