@@ -14,7 +14,7 @@ services:
       - 8010:8000
     # env_file is used to manage the env variables of our project
     env_file:
-      - ./.env/.dev-sample
+      - ./environment/.dev-sample
     restart: always
     depends_on:
       - redis
@@ -41,7 +41,7 @@ services:
     volumes:
       - .:/rbzk_pro
     env_file:
-      - ./.env/.dev-sample
+      - ./environment/.dev-sample
     depends_on:
       - redis
       - db
@@ -55,7 +55,7 @@ services:
     volumes:
       - .:/rbzk_pro
     env_file:
-      - ./.env/.dev-sample
+      - ./environment/.dev-sample
     depends_on:
       - redis
       - db
@@ -69,7 +69,7 @@ services:
     volumes:
       - .:/rbzk_pro
     env_file:
-      - ./.env/.dev-sample
+      - ./environment/.dev-sample
     ports:
       - 5557:5555
     depends_on:
