@@ -21,6 +21,8 @@ services:
       dockerfile: ./compose/production/django/Dockerfile
     command: /start
     image: rbzk_pro_web
+    ports:
+      - "8000:8000" 
     volumes:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
