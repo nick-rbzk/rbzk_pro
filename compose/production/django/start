@@ -10,7 +10,10 @@ python /rbzk/manage.py migrate
 /usr/local/bin/gunicorn rbzk.asgi:application --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker \
     --access-logfile=/rbzk/logs/access.log \
     --error-logfile=/rbzk/logs/error.log  \
-    --chdir=/rbzk 
+    --chdir=/rbzk
+
+    # remember that the error was missing backslashes the command above
+    # remember to close port 8000 in the ufw on you oracle machine
 
 # /usr/local/bin/gunicorn \
 #     --bind 0.0.0.0:443 rbzk.wsgi:application  \
