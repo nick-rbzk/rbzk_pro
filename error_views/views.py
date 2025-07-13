@@ -8,7 +8,7 @@ def bad_request(request, exception=None):
     rendered = render_to_string('400.html')
     return HttpResponse(rendered, status=400)
 
-def not_found(request, exception=None):
+def page_not_found(request, exception=None):
     rendered = render_to_string('404.html')
     return HttpResponse(rendered, status=404)
 
