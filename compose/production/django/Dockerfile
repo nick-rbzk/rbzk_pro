@@ -49,6 +49,11 @@ RUN sed -i 's/\r$//g' /start-flower
 RUN chmod +x /start-flower
 
 RUN mkdir /rbzk
+
+RUN mkdir /rbzk/logs 
+RUN touch /rbzk/logs/access.log
+RUN touch /rbzk/logs/error.log
+
 RUN mkdir /rbzk/staticfiles
 RUN mkdir /rbzk/mediafiles
 WORKDIR /rbzk
