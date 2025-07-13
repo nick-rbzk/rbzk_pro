@@ -2,7 +2,7 @@ services:
 
   nginx:
     build: ./compose/production/nginx
-    image: 127.0.0.1:5000/rbzk_pro_nginx
+    image: rbzk_pro_nginx
     volumes:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     command: /start
-    image: 127.0.0.1:5000/rbzk_pro_web
+    image: rbzk_pro_web
     volumes:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
@@ -51,7 +51,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: 127.0.0.1:5000/rbzk_pro_celery_worker
+    image: rbzk_pro_celery_worker
     command: /start-celeryworker
     volumes:
       - staticfiles:/rbzk/staticfiles
@@ -66,7 +66,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: 127.0.0.1:5000/rbzk_pro_celery_beat
+    image: rbzk_pro_celery_beat
     command: /start-celerybeat
     volumes:
       - staticfiles:/rbzk/staticfiles
@@ -81,7 +81,7 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: 127.0.0.1:5000/rbzk_pro_celery_flower
+    image: rbzk_pro_celery_flower
     command: /start-flower
     volumes:
       - staticfiles:/rbzk/staticfiles
