@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'gpt',
     'home',
     'cal_stats',
+    'error_views',
 ]
 
 MIDDLEWARE = [
