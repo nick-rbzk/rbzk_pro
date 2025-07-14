@@ -1,7 +1,7 @@
-from home.models import WorkWeek
 from datetime import timedelta
 
 def update_workweek_hours(work_week):
+    from home.models import WorkWeek
     if work_week.pk is not None and isinstance(work_week, WorkWeek):
         jobs_per_week = work_week.parkjob_set.all()
         if len(jobs_per_week) > 0:
