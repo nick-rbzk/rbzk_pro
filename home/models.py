@@ -8,7 +8,6 @@ from utils.which_week import which_week
 from utils.update_week_hours import update_workweek_hours
 
 
-
 class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
     week_end    = models.DateTimeField()
