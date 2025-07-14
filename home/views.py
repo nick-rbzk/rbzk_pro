@@ -5,6 +5,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.gzip import gzip_page
+from django.views.decorators.cache import never_cache
 from utils.which_week import which_week
 
 from .models import *
@@ -60,7 +61,7 @@ def contact_api(request):
         print(e)
     return JsonResponse({"response": 200})
 
-
+@never_cache
 def jobs_page(request):
     if request.user.is_authenticated:
         context = {}
