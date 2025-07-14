@@ -13,7 +13,6 @@ python /rbzk/manage.py migrate
     --chdir=/rbzk
 
     # remember that the error was missing backslashes the command above
-    # remember to close port 8000 in the ufw on you oracle machine
 
 # /usr/local/bin/gunicorn \
 #     --bind 0.0.0.0:443 rbzk.wsgi:application  \

@@ -1,27 +1,12 @@
 import pytz
 from django.db import models
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.dispatch import receiver
-from django.db.models.signals import post_save, post_delete, pre_save
+from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 from utils.which_week import which_week
+from utils.update_week_hours import update_workweek_hours
 
-
-def update_workweek_hours(work_week):
-    if work_week.pk is not None and isinstance(work_week, WorkWeek):
-        jobs_per_week = work_week.parkjob_set.all()
-        if len(jobs_per_week) > 0:
-            total_duration = None
-            for job in jobs_per_week:
-                if total_duration is not None:
-                    total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
-                else:
-                    total_duration = (job.job_end - job.job_start).total_seconds()
-            if total_duration is not None:
-                work_week.jobs_time = timedelta(seconds=total_duration)
-        else:
-            work_week.jobs_time = None
-        work_week.save()
 
 
 class WorkWeek(models.Model):
@@ -84,10 +69,7 @@ def update_week_hours(sender, instance, **kwargs):
             update_workweek_hours(new_parent_week)
     #kick off a background task to delete all empty workweeks
     empty_work_weeks = WorkWeek.objects.all().exclude(jobs_time__isnull=False)
-    # print("Empty work weeks________________________________________")
     for e in empty_work_weeks:
-        # print(e)
-        # print(dir(e))
         e.delete()
 
 
