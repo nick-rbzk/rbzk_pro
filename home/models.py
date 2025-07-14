@@ -7,12 +7,22 @@ from django.utils import timezone
 from utils.which_week import which_week
 
 
-def get_local_date_time():
-    utc = pytz.utc
-    utc_dt = datetime.now(timezone.utc)
-    eastern = pytz.timezone('America/New_York')
-    loc_dt = utc_dt.astimezone(eastern)
-    return loc_dt
+def update_workweek_hours(work_week):
+    if work_week.pk is not None and isinstance(work_week, WorkWeek):
+        jobs_per_week = work_week.parkjob_set.all()
+        if len(jobs_per_week) > 0:
+            total_duration = None
+            for job in jobs_per_week:
+                if total_duration is not None:
+                    total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
+                else:
+                    total_duration = (job.job_end - job.job_start).total_seconds()
+            if total_duration is not None:
+                work_week.jobs_time = timedelta(seconds=total_duration)
+        else:
+            work_week.jobs_time = None
+        work_week.save()
+
 
 class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
@@ -25,7 +35,6 @@ class WorkWeek(models.Model):
     
     class Meta:
         ordering = ["-week_end"]
-
 
 
 class ParkJob(models.Model):
@@ -67,18 +76,12 @@ def update_week_hours(sender, instance, **kwargs):
             week_start=week_start, 
             week_end=week_end
         )
-        new_parent_week.parkjob_set.add(instance)
-        all_jobs = new_parent_week.parkjob_set.all()
-        total_duration = None
-        for job in all_jobs:
-            if total_duration is not None:
-                total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
-            else:
-                total_duration = (job.job_end - job.job_start).total_seconds()
-        if total_duration is not None:
-            new_parent_week.jobs_time = timedelta(seconds=total_duration)
-        new_parent_week.save()
-    current_parent_week.save()
+        if created:
+            new_parent_week.parkjob_set.add(instance)
+            update_workweek_hours(new_parent_week)
+            update_workweek_hours(current_parent_week)
+        else:
+            update_workweek_hours(new_parent_week)
     #kick off a background task to delete all empty workweeks
     empty_work_weeks = WorkWeek.objects.all().exclude(jobs_time__isnull=False)
     # print("Empty work weeks________________________________________")
@@ -88,33 +91,7 @@ def update_week_hours(sender, instance, **kwargs):
         e.delete()
 
 
-@receiver(pre_save, sender=WorkWeek)
-def week_update_hours(sender, instance, **kwargs):
-    if instance.pk is not None:
-        jobs_per_week = instance.parkjob_set.all()
-        if len(jobs_per_week) > 0:
-            total_duration = None
-            for job in jobs_per_week:
-                if total_duration is not None:
-                    total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
-                else:
-                    total_duration = (job.job_end - job.job_start).total_seconds()
-            if total_duration is not None:
-                instance.jobs_time = timedelta(seconds=total_duration)
-        else:
-            instance.jobs_time = None
-
-
 @receiver(post_delete, sender=ParkJob)
-def update_week_hours(sender, instance, **kwargs):
+def update_week_hours_after_job_delete(sender, instance, **kwargs):
     work_week = instance.workweek
-    jobs_per_week = work_week.parkjob_set.all()
-    total_duration = None
-    for job in jobs_per_week:
-        if total_duration is not None:
-            total_duration = total_duration + (job.job_end - job.job_start).total_seconds()
-        else:
-            total_duration = (job.job_end - job.job_start).total_seconds()
-    if total_duration is not None:
-        work_week.jobs_time = timedelta(seconds=total_duration)
-    work_week.save()
+    update_workweek_hours(work_week)

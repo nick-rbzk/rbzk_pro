@@ -100,7 +100,7 @@ def jobs_page(request):
                 )
                 if not created:
                     job.save()
-            context["weeks"] = WorkWeek.objects.all().reverse()
+            context["weeks"] = WorkWeek.objects.all()
             context["form"] = JobForm()
             return render(request, "jobs.html", context)
         else:
