@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="Personal Portfolio Website, showcasing experience and career of Nick Rebezniuk." />
+        <meta name="author" content="Nick Rebezniuk" />
+        <meta name="robots" content="noindex,nofollow">
+
+        <title>{% block head_title %}{% endblock %}</title>
+        <meta name="description" content="{% block meta_description %}{% endblock %}">
+
+        {% include 'head_css.html' %}
+
+        {% block style %}{% endblock %}
+
+        {% if not DEBUG %}
+            <!-- Google tag (gtag.js) -->
+    
+        {% endif %}
+    </head>
+
+    <body>
+
+        {% include 'navbar.html' %}
+
+        <div class="container-fluid">
+            {% block content %}
+            {% endblock %}
+        </div> <!-- /container -->
+
+        {% include "footer.html" %}
+        {% include "javascript.html" %}
+
+        {% block jq %}
+        {% endblock %}
+
+    </body>
+</html>
