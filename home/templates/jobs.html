@@ -95,19 +95,19 @@
                         <li class="list-group-item">
                             <span class="badge bg-warning text-dark">{{ forloop.counter }}</span> | 
                             {{ j.job_start|date_format }} -> {{j.job_end|date_format}}
-                            <span class="badge badge-primary">CONF# {{ j.confirmation}}</span>
-                            <span class="badge badge-info">{{ j|job_duration }}</span>
+                            <span class="badge text-bg-bs-og-primary">CONF# {{ j.confirmation}}</span>
+                            <span class="badge text-bg-primary">{{ j|job_duration }}</span>
                             =
-                            <span class="badge badge-success">{{ j|job_income }}</span>
+                            <span class="badge text-bg-bs-og-success ">{{ j|job_income }}</span>
                         </li>
                         {% endfor %}
                     </ul>
                     <div class="card-footer">
                         <h6 class="bold-header">Total:
-                            <span class="badge badge-info">
+                            <span class="badge text-bg-info">
                                 {{ w.jobs_time|duration }}
                             </span>
-                            <span class="badge badge-success">
+                            <span class="badge text-bg-bs-og-success">
                                 {{ w.jobs_time|income }}
                             </span>
                         </h6>
