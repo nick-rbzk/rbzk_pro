@@ -63,7 +63,7 @@ def contact_api(request):
 
 @never_cache
 def jobs_page(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated & request.user.is_staff:
         context = {}
         context['form'] = JobForm()
         context["weeks"] = WorkWeek.objects.all().exclude(jobs_time__isnull=True)
