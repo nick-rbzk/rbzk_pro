@@ -1,4 +1,4 @@
-import pytz
+import math
 from django.db import models
 from datetime import datetime
 from django.dispatch import receiver
@@ -6,19 +6,29 @@ from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 from utils.which_week import which_week
 from utils.update_week_hours import update_workweek_hours
+from rbzk.settings import HOURLY_RATE
 
 
 class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
     week_end    = models.DateTimeField()
     jobs_time   = models.DurationField(null=True)
-    
-    def __str__(self):
-        return f"START: {timezone.localtime(self.week_start):'%m/%d/%Y %H:%M'}  \
-            |||  END: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'}"
-    
     class Meta:
         ordering = ["-week_end"]
+
+
+    def __str__(self):
+        return f"START: {timezone.localtime(self.week_start):'%m/%d/%Y %H:%M'}  \
+            |||  END: {timezone.localtime(self.week_end):'%m/%d/%Y %H:%M'} ||| Total: {self.week_total()}"
+    
+    def week_total(self):
+        total_seconds = int(self.jobs_time.total_seconds())
+        rate_per_second = HOURLY_RATE / 3600
+        total = total_seconds * rate_per_second
+        dollars = math.floor(total / 100)
+        cents = math.floor(total % 100)
+
+        return '{}.{}$'.format(dollars, cents)
 
 
 class ParkJob(models.Model):
@@ -28,14 +38,24 @@ class ParkJob(models.Model):
     notes           = models.TextField(blank=True, null=True)
     workweek        = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"START - {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p}  \
-            |||  END - {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
-    
     class Meta:
         ordering = ["-job_end"]
 
 
+    def __str__(self):
+        # return f"START - {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p}  \
+            # |||  END - {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
+        return  f"CONF# - {self.confirmation} ||| Total: {self.job_income()}"
+    
+    def job_income(self):
+        total_seconds = (self.job_end - self.job_start).total_seconds()
+        rate_per_second = HOURLY_RATE / 3600
+        total = total_seconds * rate_per_second
+        dollars = math.floor(total / 100)
+        cents = math.floor(total % 100)
+
+        return '{}.{}$'.format(dollars, cents)
+    
 class FormSubmission(models.Model):
     name = models.CharField(max_length=2024, blank=True, null=True)
     email = models.CharField(max_length=2024, blank=True, null=True)
