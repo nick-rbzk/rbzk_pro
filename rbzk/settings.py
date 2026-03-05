@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'home',
     'cal_stats',
     'error_views',
+    'coinbase',
 ]
 
 MIDDLEWARE = [
