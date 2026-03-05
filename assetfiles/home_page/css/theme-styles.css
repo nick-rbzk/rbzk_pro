@@ -625,6 +625,14 @@ progress {
   font-size: 0.875em;
   color: #6c757d;
 }
+.container-responsive{
+  width: 100%;
+  margin:0 auto;
+}
+.container-responsive .inner-wrapper{
+  width: 98%;
+  margin: 0 auto;
+}
 
 .container,
 .container-fluid,
