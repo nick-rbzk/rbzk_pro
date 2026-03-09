@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CoinbaseConfig(AppConfig):
+class CbStratConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'coinbase'
+    name = 'cb_strat'
