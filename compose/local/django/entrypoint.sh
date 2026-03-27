@@ -10,23 +10,27 @@ set -o nounset
 postgres_ready() {
 python << END
 import sys
-
-import psycopg2
+import psycopg
 
 try:
-    psycopg2.connect(
+    conn = psycopg.connect(
         dbname="${SQL_DATABASE}",
         user="${SQL_USER}",
         password="${SQL_PASSWORD}",
         host="${SQL_HOST}",
         port="${SQL_PORT}",
     )
-except psycopg2.OperationalError:
+    conn.close()  # Explicitly close the connection
+except Exception as e:
+    # Catch any exception (OperationalError doesn't exist in psycopg v3)
+    # psycopg v3 uses more specific exceptions like psycopg.Error
+    print(f"Connection failed: {e}", file=sys.stderr)
     sys.exit(-1)
 sys.exit(0)
 
 END
 }
+
 until postgres_ready; do
   >&2 echo 'Waiting for PostgreSQL to become available...'
   sleep 1
