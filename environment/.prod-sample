@@ -13,6 +13,8 @@ SQL_PORT=5432
 RABBITMQ_DEFAULT_USER=admin
 RABBITMQ_DEFAULT_PASS=admin
 
+REDIS_CACHE_LOCATION=redis://redis:6379/1
+
 CELERY_BROKER=amqp://admin:admin@rabbitmq:5672/
 CELERY_BACKEND=redis://redis:6379/0
 
