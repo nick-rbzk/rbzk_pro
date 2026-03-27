@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block style %}
+<style>
+
+.page-section .container .row .fix-height .custom-card{
+    margin: 0 auto 20px auto;
+    width: 95%;
+}
+.page-section .container .row .fix-height .custom-card .custom-btn{
+    width: 90%!important;
+    margin-top: 20px;
+}
+.page-section .container .row .fix-height .min-height{
+    min-height: 200px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <div class="container">
+        <!-- Portfolio Section Heading-->
+        <h2 class="page-section-heading text-center text-uppercase text-secondary mt-5">
+            Trading Strategy Options
+        </h2>
+        
+        <div class="row">
+            <div class="col-12 col-sm-6 col-lg-6 fix-height text-center">
+                <div class="card custom-card min-height">
+                    <h3>Available Pairs</h3>
+                    
+                    {% if inactive_pairs_form.trading_pairs|length > 0 %}
+                    <form method="POST">
+                        {% csrf_token %}
+    
+                        {% for choice in inactive_pairs_form.trading_pairs %}
+                        <div class="form-group">
+                            {{choice}}
+                        </div>
+                        {% endfor %}
+
+                        {{ inactive_pairs_form.action }} 
+
+                        <button id="startBtn" type="submit" class="btn bg-info custom-btn">
+                            Start
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-lg-6 fix-height text-center">
+                <div class="card custom-card min-height">
+                    <h3 class="text-bg-bs-og-success">Running Pairs</h3>
+
+                    {% if active_pairs_form.trading_pairs|length > 0 %}
+                    <form method="POST">
+                        {% csrf_token %}
+    
+                        {% for choice in active_pairs_form.trading_pairs %}
+                        <div class="form-group">
+                            {{choice}}
+                        </div>
+                        {% endfor %}
+
+                        {{ active_pairs_form.action }} 
+                        
+                        <button id="stopBtn" type="submit" class="btn btn-danger custom-btn">
+                            Stop
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <!-- Icon Divider-->
+        <div class="divider-custom">
+            <div class="divider-custom-line"></div>
+            <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+            <div class="divider-custom-line"></div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block jq %}
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script defer>
+    // $('#startBtn').on("click", function(e){
+    //     console.log("start")
+    //     e.preventDefault();
+    // });
+    // $('#stopBtn').on("click", function(e){
+    //     console.log("stop")
+    //     e.preventDefault();
+    // });
+</script>
+{% endblock %}
