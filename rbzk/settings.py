@@ -25,6 +25,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "&nl8s430j^j8l*je+m&ys5dv#zoy)0a2+x1!m
 
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
+
+# DEBUG = False
+
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
@@ -139,6 +142,14 @@ CACHES = {
         }
     }
 }
+
+CACHE_BIN_KEYS = ['bin1', 'bin2']
+BIN_TIMEOUT = 300
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 * 2   # 5mb * 2 !
+
+
+
+
 
 # Celery configuration
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379/0")
