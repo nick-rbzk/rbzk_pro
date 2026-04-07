@@ -7,11 +7,10 @@ from celery import shared_task
 from coinbase.models import DayPriceLog
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
-
+from rbzk.settings import CACHE_BIN_KEYS, BIN_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
-CACHE_BIN_KEYS = ['bin1', 'bin2']
 
 desired_db_price_history_fields = [
         'product_id',
@@ -28,88 +27,115 @@ desired_db_price_history_fields = [
         'side',
         'time',
         'last_size',
+        'time_received',
     ]
 
-@shared_task
-def set_cache_bins():
-    bin1 = {
-        'name': 'bin1',
-        'inuse': True,
-        'storage': []
-    }
-    bin2 = {
-        'name': 'bin2',
-        'inuse': False,
-        'storage': []
-    }
-    if not cache.has_key('bin1'):
-        cache.set('bin1', bin1, 300)
 
-    if not cache.has_key('bin2'):
-        cache.set('bin2', bin2, 300)
-
-@shared_task
-def get_active_cache_bin():
+def get_full_bin():
     """
-        Returns the bin, from redis cache,
+        Returns the full bin, from redis cache,
         with array storage, which is used by websocket to write ticker data.
         Returned bin marked as disabled
         Previously disabled bin, one with empty array, is marked enabled.
     """
-    cached_bins = [cache.get('bin1'), cache.get('bin2')]
+    cached_bins = [cache.get(bin) for bin in CACHE_BIN_KEYS]
     full_bin = None
-    print("Cached Bins")
-    print(cached_bins)
+    if None in cached_bins:
+        return False
     for b in cached_bins:
         b['inuse'] = not b['inuse']
-    print("Cached Bins2")
-    print(cached_bins)
     for b in cached_bins:
         key = {
             'name':b['name'],
             'inuse': b['inuse'],
             'storage': cache.get(b['name'])['storage']
         }
-        cache.set(b['name'], key, 300)
+        cache.set(b['name'], key, BIN_TIMEOUT)
         if not key['inuse']:
             full_bin = key['name']
     return full_bin
 
 
-@shared_task
-def redis_store_price(data):
-    pass   
 
 @shared_task
-def record_price(pair_id, data):
-    try:
-        json_data = json.loads(data)
-        if json_data.get('type') == 'ticker':
-            date = datetime.strptime(json_data.get('time'), "%Y-%m-%dT%H:%M:%S.%f%z")
+def redis_store_price(data):
+    ticker_data = json.loads(data)
+    if ticker_data.get('type') == 'ticker':
+        now = datetime.now(timezone.utc)
+        ticker_data['time_received'] = now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+        bins = [cache.get(bin) for bin in CACHE_BIN_KEYS]
+        if None in bins:
+            return False
+        bin_to_use_name = None
+        bin_to_use = None
+        for b in bins:
+            if b['inuse']:
+                bin_to_use_name = b['name']
+        
+        if bin_to_use_name is not None:
+            bin_to_use = cache.get(bin_to_use_name)
+        
+        bin_to_use["storage"].append(ticker_data)
+        cache.set(bin_to_use_name, bin_to_use, BIN_TIMEOUT)
+
+
+@shared_task
+def db_record_price():
+    bin_name = get_full_bin()
+    full_bin = None
+    if bin_name:
+        full_bin = cache.get(bin_name)
+    if full_bin is None:
+        return "Full Bin was not found"
+    db_data = {}
+    for message in full_bin["storage"]:
+        if not hasattr(db_data, message["product_id"]):
+            db_data[message["product_id"]] = {
+                "coinbase_date": message["time"],
+                "low_price" : message["low_24h"],
+                "high_price": message["high_24h"],
+                "last_price": message["price"],
+                "message_q": [message]
+            }
+        else:
+            db_data[message["product_id"]]["coinbase_date"] = message['time']
+
+            current_price = Decimal(message["price"])
+            low_price = Decimal(db_data[message["product_id"]]["low_price"])
+            high_price = Decimal(db_data[message["product_id"]]["high_price"])
+            if current_price > high_price :
+                db_data[message["product_id"]]["high_price"] = message["price"]
+            if current_price < low_price:
+                db_data[message["product_id"]]["low_price"] = message["price"]
+
+            db_data[message["product_id"]]["last_price"] = message['price']
+            db_data[message["product_id"]]["message_q"].append(message)
+
+    for key in db_data.keys():
+        try:
+
+            date = datetime.strptime(db_data[key]["coinbase_date"], "%Y-%m-%dT%H:%M:%S.%f%z")
 
             price_log, created = DayPriceLog.objects.get_or_create(
                 coinbase_date=date,
-                ticker_symbol=json_data.get('product_id'),
+                ticker_symbol=key,
             )
             
             if created:
                 print("New Object")
-                price_log.high_price = Decimal(json_data.get('high_24h'))
-                price_log.low_price = Decimal(json_data.get('low_24h'))
+                price_log.high_price = Decimal(db_data[key]['high_price'])
+                price_log.low_price = Decimal(db_data[key]['low_price'])
 
-            price_data = {}
-            for field in desired_db_price_history_fields:
-                if field == 'time':
-                    price_data['coinbase_time'] = json_data.get(field)
-                else:
-                    price_data[field] = json_data.get(field)
+            message_store = db_data[key]["message_q"] 
+            for message in message_store:
+                price_data = {}
+                for field in desired_db_price_history_fields:
+                        price_data[field] = message[field]
 
-            now = datetime.now(timezone.utc)
-            price_data['my_machine_time'] = now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-            price_data = json.dumps(price_data)
-            price_log.price_history.append(price_data)
+                price_data = json.dumps(price_data)
+                price_log.price_history.append(price_data)
 
-            current_price = Decimal(json_data.get('price'))
+            current_price = Decimal(db_data[key]['last_price'])
             if current_price > price_log.high_price :
                 price_log.high_price = current_price
             if current_price < price_log.low_price:
@@ -119,27 +145,28 @@ def record_price(pair_id, data):
             try:
                 yestarday_dpl = DayPriceLog.objects.get(
                     coinbase_date=yestarday, 
-                    ticker_symbol=json_data.get("product_id")
+                    ticker_symbol=key
                 )
                 if yestarday_dpl is not None:
-                    # calculate atr
                     one = abs(price_log.high_price - price_log.low_price)
                     two = abs(yestarday_dpl.last_price  - price_log.high_price)
-                    three = abs(yestarday_dpl.last_price - price_log.low_price) 
+                    three = abs(yestarday_dpl.last_price - price_log.low_price)
                     price_log.n_atr = max([one, two, three])
+
             except ObjectDoesNotExist as e:
                 print(e)
 
             price_log.last_price = current_price
 
             price_log.save()
-            
-
 
             logger.debug(f"Price update: price_data")
-            
-    except Exception as e:
-        logger.error(f"Error processing message: {e}")
+
+            full_bin["storage"] = []
+            cache.set(bin_name, full_bin, BIN_TIMEOUT)
+                
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
 
 
 
