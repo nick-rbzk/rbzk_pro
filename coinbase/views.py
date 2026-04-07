@@ -7,30 +7,75 @@ from .models import *
 from .forms import TradingPairForm
 
 
+from django.core.cache import cache
+
+
+def set_cache_bins():
+    bin1 = {
+        'name': 'bin1',
+        'inuse': True,
+        'storage': []
+    }
+    bin2 = {
+        'name': 'bin2',
+        'inuse': False,
+        'storage': []
+    }
+    if not cache.has_key('bin1'):
+        cache.set('bin1', bin1, 300)
+
+    if not cache.has_key('bin2'):
+        cache.set('bin2', bin2, 300)
+
 @csrf_exempt
 def trading_options(request):
-    """API endpoint to start the price watcher"""
+    # Access the underlying Redis client
+    # client = cache.client.get_client()
+
+    # # Get detailed info dictionary
+    # info = client.info()
+
+    # print(f"Used Memory: {info['used_memory_human']}")
+    # print(f"Connected Clients: {info['connected_clients']}")
+    # print(f"Redis Version: {info['redis_version']}")i
+    # print(info)
+
+    
+    set_cache_bins()
+    print(cache.get('bin1'))
+    print(cache.get('bin2'))
     context = {}
     if request.user.is_authenticated & request.user.is_staff:
-        context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
-        context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
+        if request.method == "GET":
+            context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
+            context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
 
         if request.method == "POST":
             pairs_form = TradingPairForm(request.POST, is_active=None)
             if pairs_form.is_valid():
                 pair_ids = pairs_form.cleaned_data.get('trading_pairs')
                 action = pairs_form.cleaned_data.get('action')
-                if len(pair_ids) > 0:
-                    for p_id in pair_ids:
-                        if action == '1':
-                            run_coinbase_websocket.delay(p_id)
-                        if action == '0':
-                            stop_coinbase_websocket.delay(p_id)
- 
+                if action == '1':
+                    if len(pair_ids) > 0:
+                        task = run_coinbase_websocket.delay(pair_ids)
+                        active_task = WebSocketTask.objects.create(
+                            task_id=task.id,
+                            name=f"{GLOBAL_WS_TASK_NAME}:{pair_ids}",
+                        )
+                        pairs_q = TradingPair.objects.filter(pk__in=pair_ids)
+                        for pair in pairs_q:
+                            pair.is_active = True
+                            pair.running_task = active_task
+                            pair.save()
+                
+                if action == '0':
+                    stop_coinbase_websocket.delay()
+                    return redirect("admin:index")
             else:
                 print(pairs_form.errors) 
+            context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
+            context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
         return render(request, 'trader.html', context)
-    return redirect("home_page")
 
 @csrf_exempt
 def stop_price_watcher(request, task_id=None):

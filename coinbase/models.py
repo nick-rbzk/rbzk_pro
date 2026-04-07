@@ -18,7 +18,7 @@ class TradingPair(models.Model):
     ticker_symbol   = models.CharField(max_length=256, blank=False, null=True)
     name            = models.CharField(max_length=1024, blank=False, null=True)
     is_active       = models.BooleanField(default=False, blank=False, null=False)
-    running_task    = models.OneToOneField(WebSocketTask, on_delete=models.SET_NULL, null=True, blank=True)
+    running_task    = models.ForeignKey(WebSocketTask,on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         state = 'OFF'
@@ -36,42 +36,75 @@ class DayPriceLog(models.Model):
         null=True,
         blank=False,
         )
+    high_price      = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    low_price       = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     last_price      = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     created_at      = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True, auto_now_add=False)
-    n_atr   = models.CharField(max_length=1024, blank=True, null=True, help_text='N as Average True Range')
+    n_atr           = models.CharField(max_length=1024, blank=True, null=True, help_text='N as Average True Range')
 
     def __str__(self):
         return f"{self.ticker_symbol}"
 
+
+# class Strategy(models.Model):
+#     name = models.CharField(max_length=256, null=False, blank=False)
+#     is_active = models.BooleanField(default=False)
+    
+
     
 
 # class BreakOutSignal(models.Model):
+#     trading_pair = models.ForeignKey(TradingPair)
+#     name = models.CharField(max_length=256, null=False, blank=False)
+#     ticker_symbol   = models.CharField(max_length=1024, blank=True, null=True)
 #     break_out_price = models.CharField(max_length=256, null=False, blank=False)
-#     # direction = ['short_sell', 'long_buy']
-#     # event = ['e.g','20daylow', '20dayhigh', '55dayhigh', '55daylow]
-#     # result = ['winner', 'looser']
-#     # trade = models.ForeignKey(Trade)
+#     direction = ['short_sell', 'long_buy']
+#     event = ['e.g','20daylow', '20dayhigh', '55dayhigh', '55daylow]
+#     result = ['winner', 'looser']
+#     trade = models.ForeignKey(Trade)
 #     created_at      = models.DateTimeField(auto_now=False, auto_now_add=True)
 #     updated_at      = models.DateTimeField(auto_now=True, auto_now_add=False)
 
 
 # class Trade(models.Model):
-#     # state = ['open', 'closed']
-#     # type = ['short_sell', 'long_buy']
-#     # enter_price = models.DecimalField(max_length=128, null=False, blank=False)
-#     # stop_loss_price = models.DecimalField(max_length=128, null=False, blank=False)
-#     # exit_price = models.DecimalField(max_length=128, null=True, blank=True)
-#     # profit_loss = models.DecimalField(max_lenght=128, null=True, blank=True)
-#     # signal = models.ForeignKey(BreakOutSignal)
+#     ticker_symbol   = models.CharField(max_length=1024, blank=True, null=True)
+#     state = ['open', 'closed']
+#     type = ['short_sell', 'long_buy']
+#     enter_price = models.DecimalField(max_length=128, null=False, blank=False)
+#     stop_loss_price = models.DecimalField(max_length=128, null=False, blank=False)
+#     exit_price = models.DecimalField(max_length=128, null=True, blank=True)
+#     profit_loss = models.DecimalField(max_lenght=128, null=True, blank=True)
+#     signal = models.ForeignKey(BreakOutSignal)
 #     created_at      = models.DateTimeField(auto_now=False, auto_now_add=True)
 #     updated_at      = models.DateTimeField(auto_now=True, auto_now_add=False)
 
 
 
+# TODO
+# setup email for webvision ltd
+
+# include compression header for websocket connection
+
+# S1 Strategie with a model
+
+# S2 strategie with a model
+
+# ✅one websocket connection never multiple
+# ✅Mark Trading pairs  outside of celery task
+
+# ✅struckture websocket messages
+# ✅write ws messages in to redis
+# ✅every minute empty redis cache
+# ✅two redis entries to hold messages one by one.
+# ✅when the celery tasks runs too empty one redis array
+# ✅the other one is being prepopulated
+# ✅flip the flag
+# ✅empty redis array is being prepopulted
+# ✅run the query against the full one.
 
 
-
+# autorestart the websocket on error
 # Error 104 :Connection closed by peer Solution
 # wsClient = cbpro.WebsocketClient(url="wss://ws-feed.pro.coinbase.com",
 #                                 products=["BTC-USD", "ETH-USD"],
@@ -83,6 +116,29 @@ class DayPriceLog(models.Model):
 #                 wsClient.error = None
 #                 wsClient.start()
 #         time.sleep(1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -178,14 +234,5 @@ class DayPriceLog(models.Model):
 
                                 
                                 
-                                
-                                
-                                
-                                
-                                
-                                
-
-
-
 
 

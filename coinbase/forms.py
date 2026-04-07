@@ -26,11 +26,16 @@ class TradingPairForm(forms.Form):
             self.set_choices(all_choices)
     
     def set_active(self, *args, **kwargs):
+        self.fields["trading_pairs"].widget.attrs["checked"] = True
+        self.fields["trading_pairs"].widget.attrs["disabled"] = True
         active_pairs = TradingPair.objects.filter(is_active=True)
+
         self.set_choices(active_pairs)
     
     def set_inactive(self, *args, **kwargs):
-        inactive_pairs = TradingPair.objects.filter(is_active=False) 
+
+        inactive_pairs = TradingPair.objects.filter(is_active=False)
+
         self.set_choices(inactive_pairs)
 
     def set_choices(self, pairs):
