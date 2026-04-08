@@ -53,7 +53,6 @@ def stop_coinbase_websocket():
     task_ids = set(task_ids)
     for task_id in list(task_ids):
         if task_id is not None:
-            print("REVOKED-----------------------------------")
             app.control.revoke(task_id, terminate=True)
     websocket_obj_ids = set(websocket_obj_ids)
     websockets = WebSocketTask.objects.filter(pk__in=websocket_obj_ids)
