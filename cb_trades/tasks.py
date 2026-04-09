@@ -31,6 +31,24 @@ desired_db_price_history_fields = [
     ]
 
 
+def set_cache_bins():
+    bin1 = {
+        'name': 'bin1',
+        'inuse': True,
+        'storage': []
+    }
+    bin2 = {
+        'name': 'bin2',
+        'inuse': False,
+        'storage': []
+    }
+    if not cache.has_key('bin1'):
+        cache.set('bin1', bin1, 300)
+
+    if not cache.has_key('bin2'):
+        cache.set('bin2', bin2, 300)
+
+
 def get_full_bin():
     """
         Returns the full bin, from redis cache,
@@ -65,7 +83,8 @@ def redis_store_price(data):
         ticker_data['time_received'] = now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
         bins = [cache.get(bin) for bin in CACHE_BIN_KEYS]
         if None in bins:
-            return False
+            set_cache_bins()
+            bins = [cache.get(bin) for bin in CACHE_BIN_KEYS]
         bin_to_use_name = None
         bin_to_use = None
         for b in bins:
@@ -77,6 +96,7 @@ def redis_store_price(data):
         
         bin_to_use["storage"].append(ticker_data)
         cache.set(bin_to_use_name, bin_to_use, BIN_TIMEOUT)
+        return True
 
 
 @shared_task
@@ -89,7 +109,8 @@ def db_record_price():
         return "Full Bin was not found"
     db_data = {}
     for message in full_bin["storage"]:
-        if not hasattr(db_data, message["product_id"]):
+        if not message["product_id"] in db_data.keys():
+
             db_data[message["product_id"]] = {
                 "coinbase_date": message["time"],
                 "low_price" : message["low_24h"],
@@ -110,7 +131,6 @@ def db_record_price():
 
             db_data[message["product_id"]]["last_price"] = message['price']
             db_data[message["product_id"]]["message_q"].append(message)
-
     for key in db_data.keys():
         try:
 

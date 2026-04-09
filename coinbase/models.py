@@ -44,7 +44,7 @@ class DayPriceLog(models.Model):
     n_atr           = models.CharField(max_length=1024, blank=True, null=True, help_text='N as Average True Range')
 
     def __str__(self):
-        return f"{self.ticker_symbol}"
+        return f"{self.ticker_symbol} - ticker messages: {len(self.price_history)}"
 
 
 # class Strategy(models.Model):
@@ -82,17 +82,21 @@ class DayPriceLog(models.Model):
 
 
 # TODO
-# setup email for webvision ltd
+# ❌ BUG :After a long websocket job with a lot of messages only 1 gets added to db
 
-# include compression header for websocket connection
+# ❌ setup email for webvision ltd
 
-# S1 Strategie with a model
+# ❌ include compression header for websocket connection
 
-# S2 strategie with a model
+# ❌ S1 Strategie with a model
+
+# ❌ S2 strategie with a model
+
+
+
 
 # ✅one websocket connection never multiple
 # ✅Mark Trading pairs  outside of celery task
-
 # ✅struckture websocket messages
 # ✅write ws messages in to redis
 # ✅every minute empty redis cache
@@ -104,7 +108,7 @@ class DayPriceLog(models.Model):
 # ✅run the query against the full one.
 
 
-# autorestart the websocket on error
+# ❌ autorestart the websocket on error
 # Error 104 :Connection closed by peer Solution
 # wsClient = cbpro.WebsocketClient(url="wss://ws-feed.pro.coinbase.com",
 #                                 products=["BTC-USD", "ETH-USD"],

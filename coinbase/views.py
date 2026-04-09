@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rbzk.settings import GLOBAL_WS_TASK_NAME
+from cb_trades.tasks import set_cache_bins
 from .tasks import run_coinbase_websocket, stop_coinbase_websocket
 from .models import *
 from .forms import TradingPairForm
@@ -10,37 +11,9 @@ from .forms import TradingPairForm
 from django.core.cache import cache
 
 
-def set_cache_bins():
-    bin1 = {
-        'name': 'bin1',
-        'inuse': True,
-        'storage': []
-    }
-    bin2 = {
-        'name': 'bin2',
-        'inuse': False,
-        'storage': []
-    }
-    if not cache.has_key('bin1'):
-        cache.set('bin1', bin1, 300)
-
-    if not cache.has_key('bin2'):
-        cache.set('bin2', bin2, 300)
 
 @csrf_exempt
-def trading_options(request):
-    # Access the underlying Redis client
-    # client = cache.client.get_client()
-
-    # # Get detailed info dictionary
-    # info = client.info()
-
-    # print(f"Used Memory: {info['used_memory_human']}")
-    # print(f"Connected Clients: {info['connected_clients']}")
-    # print(f"Redis Version: {info['redis_version']}")i
-    # print(info)
-
-    
+def trading_options(request):   
     set_cache_bins()
     print(cache.get('bin1'))
     print(cache.get('bin2'))
