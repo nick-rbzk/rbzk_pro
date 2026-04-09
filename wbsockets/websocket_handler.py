@@ -2,7 +2,7 @@ import json
 import websocket
 import logging
 
-from cb_trades.tasks import record_price
+from cb_trades.tasks import db_record_price, redis_store_price
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,10 @@ class CoinbaseWebSocketHandler:
         
     def on_message(self, ws, message):
         """Process incoming messages and store in DB"""
-        record_price.delay(self.product_ids, message)
+        # record_price.delay(self.product_ids, message)
+        redis_store_price.delay(message)
+        # turtle_s1.delay(message)
+        # turtle_s2.delay(message)
     
     def on_error(self, ws, error):
         logger.error(f"WebSocket error: {error}")
@@ -30,8 +33,6 @@ class CoinbaseWebSocketHandler:
         self.running = False
     
     def on_open(self, ws):
-        # TODO
-        # include compression header for websocket connection
         """Subscribe to channels when connection opens"""
         subscribe_message = {
             "type": "subscribe",
