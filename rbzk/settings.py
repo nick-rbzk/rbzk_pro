@@ -23,10 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("SECRET_KEY", "&nl8s430j^j8l*je+m&ys5dv#zoy)0a2+x1!m8hx290_sx&0gh")
 
+
+
 DEBUG = int(os.environ.get("DEBUG", default=1))
-
-
 # DEBUG = False
+
+
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(" ")
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'gpt',
     'home',
+    'emails',
     'cal_stats',
     'error_views',
     'coinbase',
@@ -124,14 +127,12 @@ CACHES = {
                 'max_connections': 50,
                 'timeout': 20,
             },
-            # PARSER_CLASS should be inside CONNECTION_POOL_CLASS_KWARGS
-            # MAX_CONNECTIONS should be inside CONNECTION_POOL_CLASS_KWARGS as max_connections
             'REDIS_CLIENT_KWARGS': {  # Additional kwargs for Redis client
                 'decode_responses': True,  # Optional: return strings instead of bytes
                 'health_check_interval': 30,
             },
         },
-        'KEY_PREFIX': 'myapp',  # Optional: prefix all cache keys
+        'KEY_PREFIX': 'rbzk',  # Optional: prefix all cache keys
         'TIMEOUT': 300,  # Optional: default timeout in seconds
     },
     'sessions': {
@@ -143,12 +144,8 @@ CACHES = {
     }
 }
 
-CACHE_BIN_KEYS = ['bin1', 'bin2']
-BIN_TIMEOUT = 300
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 * 2   # 5mb * 2 !
-
-
-
 
 
 # Celery configuration
@@ -198,7 +195,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -214,16 +210,40 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-HOURLY_RATE = 1000
 
+# Spotter job earnings/rate settings
+
+HOURLY_RATE = 1000
 WEEK_TIME_START = "00:00"
 WEEK_TIME_END = "23:59"
 
 
 
 # Coinbase websocket related
+
 GLOBAL_WS_TASK_NAME = 'websocket'
 
-# Email Settings
+# Coinbase websocket task cache Settings
+
+CACHE_BIN_KEYS = ['bin1', 'bin2']
+BIN_TIMEOUT = 3000
+STORAGE_PREFIX = "_STORAGE"
+BIN_STORAGE_KEYS = [key + STORAGE_PREFIX for key in CACHE_BIN_KEYS]
+
+# Coinbase trade capital allocation
+
+USD_PER_TRADE = 2000
 
 
+
+# Email settings
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.privateemail.com'  # PrivateEmail SMTP server
+EMAIL_PORT = 587  # Typically 587 for TLS, 465 for SSL
+EMAIL_USE_TLS = True  # Use TLS (True for 587, False for 465)
+EMAIL_USE_SSL = False  # Use SSL (False for 587, True for 465)
+EMAIL_HOST_USER = 'info@webvision.ltd'# Your full email address
+EMAIL_HOST_PASSWORD = 'UH!xAf^hRAeJz2'  # Your email account password
+DEFAULT_FROM_EMAIL = 'info@webvision.ltd'  # Default sender email
+SERVER_EMAIL = 'info@webvision.ltd'  # Email for server errors

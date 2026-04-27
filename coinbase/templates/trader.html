@@ -11,10 +11,19 @@
 }
 .page-section .container .row .fix-height .custom-card .custom-btn{
     width: 90%!important;
-    margin-top: 20px;
+    margin:20px auto;
 }
 .page-section .container .row .fix-height .min-height{
     min-height: 200px;
+}
+
+.page-section .container .row .fix-height .custom-card form .choices {
+    width: 110px;
+    margin:0 auto;
+}
+.page-section .container .row .fix-height .custom-card form .choices .chbx-group {
+    text-align: left;
+    margin: 15px auto;
 }
 </style>
 {% endblock %}
@@ -35,12 +44,13 @@
                     {% if inactive_pairs_form.trading_pairs|length > 0 %}
                     <form method="POST">
                         {% csrf_token %}
-    
-                        {% for choice in inactive_pairs_form.trading_pairs %}
-                        <div class="form-group">
-                            {{choice}}
+                        <div class="choices">
+                            {% for choice in inactive_pairs_form.trading_pairs %}
+                            <div class="form-group chbx-group">
+                                {{choice}}
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
 
                         {{ inactive_pairs_form.action }} 
 

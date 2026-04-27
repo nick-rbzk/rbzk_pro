@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.cache import cache
 from rbzk.settings import GLOBAL_WS_TASK_NAME
 from cb_trades.tasks import set_cache_bins
+from emails.tasks import trade_opened_email
 from .tasks import run_coinbase_websocket, stop_coinbase_websocket
 from .models import *
 from .forms import TradingPairForm
-
-
-from django.core.cache import cache
 
 
 
@@ -17,12 +16,16 @@ def trading_options(request):
     set_cache_bins()
     print(cache.get('bin1'))
     print(cache.get('bin2'))
+    print(cache.get("highs_lows"))
+    print(cache.get("bin1_STORAGE"))
+    print(cache.get("bin2_STORAGE"))
+
     context = {}
     if request.user.is_authenticated & request.user.is_staff:
         if request.method == "GET":
             context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
             context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
-
+            trade_opened_email.delay()
         if request.method == "POST":
             pairs_form = TradingPairForm(request.POST, is_active=None)
             if pairs_form.is_valid():
@@ -49,29 +52,4 @@ def trading_options(request):
             context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
             context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
         return render(request, 'trader.html', context)
-
-@csrf_exempt
-def stop_price_watcher(request, task_id=None):
-    """API endpoint to stop the price watcher"""
-    if request.method == 'GET':
-        pass
-        if task_id is not None:
-            pass
-            at = WebSocketTask.objects.get(taks_id=task_id)
-            result = stop_coinbase_websocket.delay(at.task_id)
-        else:
-            active_tasks = WebSocketTask.objects.all()
-            task_ids = []
-            for at in active_tasks:
-                if at.task_id is not None:
-                    task_ids.append(at.task_id)
-                    result = stop_coinbase_websocket.delay(at.task_id)
-            
-            for at in active_tasks:
-                at.delete()
-            return JsonResponse({'status': 'stopping', 'ids': f"{task_ids}"})
-    return JsonResponse({'status': 'stopping', 'task_id': task_id})
-
-
-def get_latest_price(request):
-    return JsonResponse({'result': 'Price not available'}, status=404)
+    return redirect("home")

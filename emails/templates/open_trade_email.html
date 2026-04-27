@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OPENED Trade</title>
+    <style type="text/css">
+        /* Client-specific styles */
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        
+        /* Reset styles */
+        body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+        
+        /* iOS BLUE LINKS */
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+        
+        /* Main styles */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+            background-color: #f4f4f4;
+        }
+        
+        .wrapper {
+            width: 100%;
+            table-layout: fixed;
+            background-color: #f4f4f4;
+            padding-bottom: 40px;
+        }
+        
+        .main {
+            background-color: #ffffff;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 100%;
+            border-spacing: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333333;
+        }
+        
+        .header {
+            padding: 20px;
+            text-align: center;
+            background-color: #005451;
+            color: #00efe7;
+        }
+        
+        .content {
+            padding: 20px;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #999999;
+            background-color: #eeeeee;
+        }
+        
+        .myButton {
+            box-shadow:inset 0px 1px 3px 0px #91b8b3;
+            background:linear-gradient(to bottom, #768d87 5%, #6c7c7c 100%);
+            background-color:#768d87;
+            border-radius:5px;
+            border:1px solid #566963;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Arial;
+            font-size:15px;
+            font-weight:bold;
+            padding:11px 23px;
+            text-decoration:none;
+            text-shadow:0px -1px 0px #2b665e;
+        }
+        .myButton:hover {
+            background:linear-gradient(to bottom, #6c7c7c 5%, #768d87 100%);
+            background-color:#6c7c7c;
+        }
+        .myButton:active {
+            position:relative;
+            top:1px;
+        }
+        
+        @media screen and (max-width: 600px) {
+            .responsive-column {
+                display: block !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="wrapper">
+        <table class="main" width="100%">
+            <!-- HEADER -->
+            <tr>
+                <td class="header">
+                    <h1>Opened a New Trade</h1>
+                </td>
+            </tr>
+            
+            <!-- CONTENT -->
+            <tr>
+                <td class="content">
+                    <h2>{{ trade_type }} Position</h2>
+                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
+                        Opened : <b>{{ num_shares }}</b> Shares of <b>{{ currency }}</b> @ <b>{{ enter_price }}</b>$/share
+                    </p>
+                    <br>
+                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
+                        Stop/Loss Amount : <b>{{stop_loss_amount}}$</b>
+                        &nbsp;&nbsp;-&nbsp;&nbsp; 
+                        Stop/Loss Price  : {{ stop_loss_price }}$/share
+                    </p>
+                    <br>
+                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
+                        Price broke {{ trend_period }}.
+                    </p>
+                    <br>
+                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
+                        Total Spent $ : {{ dollar_amount }}$
+                    </p>
+                    <br>
+                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
+                        Trade id : {{ trade_id }}
+                    </p>
+
+                    <a target="_blank"
+                        href="{{ domain }}/89ee14c8c7cb465faa10ec1a5e142fd3/coinbase/trade/">
+                        <button class="btn btn-info myButton">
+                            Open Trades Panel
+                        </button>
+                    </a>
+                </td>
+            </tr>
+
+
+            
+            <!-- FOOTER -->
+            <tr>
+                <td class="footer">
+                    <p>&copy; 2026 WebVision. All rights reserved.</p>
+                </td>
+            </tr>
+        </table>
+    </section>
+</body>
+</html>

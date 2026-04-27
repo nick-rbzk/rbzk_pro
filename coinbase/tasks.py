@@ -1,11 +1,13 @@
 import logging
+import requests
+import time
 
 from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 from rbzk.celery import app
 from wbsockets.websocket_handler import CoinbaseWebSocketHandler
 from rbzk.settings import GLOBAL_WS_TASK_NAME
-from .models import TradingPair, WebSocketTask
+from .models import TradingPair, WebSocketTask, DayPriceLog
 
 
 logger = logging.getLogger(__name__)
@@ -59,3 +61,47 @@ def stop_coinbase_websocket():
     for w in websockets:
         w.delete()
     return "Stop WebSocket Task Completed"
+
+
+
+
+
+@shared_task
+def setup_history_logs():
+    # curl --request GET \
+#   --url 'https://api.coinbase.com/api/v3/brokerage/market/products/XLM-USD/candles?granularity=ONE_DAY&end=1777234896&start=1772482896&limit=90' \
+#   --header 'Authorization: Bearer <token>'
+#   
+    end_time = int(time.time())
+    start_time = end_time - (56 * 86400)
+    granularity = '86400'
+    
+    # Note: Modern Advanced Trade API requires JWT or API Key authentication
+    # See official docs for signing requests: https://docs.cdp.coinbase.com/
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <YOUR_ACCESS_TOKEN>"
+    }
+
+    trading_pairs = TradingPair.objects.all()
+
+    for pair in trading_pairs:
+        if pair.ticker_symbol:
+            url = f"https://api.coinbase.com/api/v3/brokerage/products/{pair.ticker_symbol}/candles"
+            params = {
+                "start": str(start_time),
+                "end": str(end_time),
+                "granularity": granularity,
+            }
+            response = requests.get(url, params=params, headers=headers)
+            data = response.json()
+ 
+
+            # DayPriceLog.objects.create(
+            #     coinbase_date = datetime.now(),
+            #     ticker_symbol=pair.ticker_symbol,
+            #     high_price= respinse["high"],
+            #     low_price=response["low"],       
+            #     last_price=response["close"],
+            #     n_atr = 44,
+            # )
