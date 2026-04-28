@@ -3,3 +3,4 @@ postgres_data/
 postgresData/
 staticfiles/
 compose/production/nginx/certs
+.vscode
