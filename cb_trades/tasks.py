@@ -356,30 +356,31 @@ def set_highs_and_lows():
         days_55_highs   = []
         days_55_lows    = []
         idx = 0 
-        for dl in day_logs: # check for precision
-            if idx < 10:
-                days_10_highs.append(dl.high_price)
-                days_10_lows.append(dl.low_price)
-            if idx < 20: 
-                days_20_highs.append(dl.high_price)
-                days_20_lows.append(dl.low_price)
-            days_55_highs.append(dl.high_price)
-            days_55_lows.append(dl.low_price)
-            idx += 1
+        if len(day_logs) > 0:
+            for dl in day_logs: # check for precision
+                if idx < 10:
+                    days_10_highs.append(dl.high_price)
+                    days_10_lows.append(dl.low_price)
+                if idx < 20: 
+                    days_20_highs.append(dl.high_price)
+                    days_20_lows.append(dl.low_price)
+                days_55_highs.append(dl.high_price)
+                days_55_lows.append(dl.low_price)
+                idx += 1
         
-        highest_20day   = max(days_20_highs)
-        lowest_20day    = min(days_20_lows)
-        highest_10day   = max(days_10_highs)
-        lowest_10day    = min(days_10_lows)
-        highest_55day   = max(days_55_highs)
-        lowest_55day    = min(days_55_lows)
+            highest_20day   = max(days_20_highs)
+            lowest_20day    = min(days_20_lows)
+            highest_10day   = max(days_10_highs)
+            lowest_10day    = min(days_10_lows)
+            highest_55day   = max(days_55_highs)
+            lowest_55day    = min(days_55_lows)
 
-        cache_data[pair.ticker_symbol] = {
-            "highest_20day": highest_20day,
-            "lowest_20day": lowest_20day,
-            "highest_10day": highest_10day,
-            "lowest_10day": lowest_10day,
-            "highest_55day": highest_55day,
-            "lowest_55day": lowest_55day,
-        }
-    cache.set("highs_lows", cache_data, 172800)
+            cache_data[pair.ticker_symbol] = {
+                "highest_20day": highest_20day,
+                "lowest_20day": lowest_20day,
+                "highest_10day": highest_10day,
+                "lowest_10day": lowest_10day,
+                "highest_55day": highest_55day,
+                "lowest_55day": lowest_55day,
+            }
+            cache.set("highs_lows", cache_data, 172800)
