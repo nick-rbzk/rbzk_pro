@@ -1,8 +1,6 @@
-import logging
-import requests
-import time
-import os
+import jwt, time, secrets, os, logging, requests, time, os
 
+from cryptography.hazmat.primitives import serialization
 from decimal import Decimal
 from datetime import datetime
 from cdp.auth.utils.jwt import generate_jwt, JwtOptions
@@ -10,7 +8,7 @@ from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 from rbzk.celery import app
 from wbsockets.websocket_handler import CoinbaseWebSocketHandler
-from rbzk.settings import GLOBAL_WS_TASK_NAME
+from rbzk.settings import GLOBAL_WS_TASK_NAME, BASE_DIR
 from .models import TradingPair, WebSocketTask, DayPriceLog
 
 
@@ -66,31 +64,28 @@ def stop_coinbase_websocket():
         w.delete()
     return "Stop WebSocket Task Completed"
 
-import jwt, time, secrets, os
-from cryptography.hazmat.primitives import serialization
-
-#  KEY_NAME="organizations/{org_id}/apiKeys/{key_id}"
-KEY_NAME="organizations/5d725a29-11c7-439b-b1da-2a940b5ecd6c/apiKeys/4f25e8d6-6d37-4145-a9b5-6da39a291da5"
-KEY_SECRET="-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEICZTStwfk31r4ffYu5zje8GhU7vdr6Jbw5DKBVUisAGFoAoGCCqGSM49\nAwEHoUQDQgAE3prSu4ILzdAtOr+LSN4hk3ZDiYXNhDGdHlsqpWbt7gymjzm6RUpk\nQFL/+LSHKDuwe/DtFuMO25Bxy1F8GCMQqg==\n-----END EC PRIVATE KEY-----\n"
-REQUEST_METHOD="GET"
-REQUEST_PATH="/api/v3/brokerage/products/XLM-USD/candles"
-REQUEST_HOST="api.coinbase.com"
-
-
 
 def build_jwt(ticker_symbol):
+    key_name = os.environ.get("COINBASE_KEY_NAME")
+    private_key = os.environ.get("COINBASE_KEY_SECRET")
+    if not key_name and not private_key:
+        logger.error("Coinbase keys not found")
+        return False
+    request_method  = "GET"
+    request_host    = "api.coinbase.com"
     request_path=f"/api/v3/brokerage/products/{ticker_symbol}/candles"
-    private_key = serialization.load_pem_private_key(KEY_SECRET.encode(), password=None)
-    uri = f"{REQUEST_METHOD} {REQUEST_HOST}{request_path}"
+    private_key = serialization.load_pem_private_key(private_key.encode(), password=None)
+    uri = f"{request_method} {request_host}{request_path}"
     payload = {
-        'sub': KEY_NAME,
+        'sub': key_name,
         'iss': "cdp",
         'nbf': int(time.time()),
         'exp': int(time.time()) + 120,
         'uri': uri,
     }
     return jwt.encode(payload, private_key, algorithm='ES256',
-                      headers={'kid': KEY_NAME, 'nonce': secrets.token_hex()})
+                      headers={'kid': key_name, 'nonce': secrets.token_hex()})
+
 
 @shared_task
 def setup_history_logs():
@@ -102,9 +97,12 @@ def setup_history_logs():
     for pair in trading_pairs:
         if pair.ticker_symbol:
             ticker_symbol = pair.ticker_symbol
+            token = build_jwt(ticker_symbol)
+            if not token:
+                break
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {build_jwt(ticker_symbol)}"
+                "Authorization": f"Bearer {token}"
             }
             url = f"https://api.coinbase.com/api/v3/brokerage/products/{ticker_symbol}/candles"
             params = {

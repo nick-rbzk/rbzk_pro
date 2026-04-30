@@ -4,3 +4,4 @@ postgresData/
 staticfiles/
 compose/production/nginx/certs
 .vscode
+cb_keys
