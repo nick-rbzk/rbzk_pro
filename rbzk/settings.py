@@ -55,8 +55,8 @@ INSTALLED_APPS = [
     'emails',
     'cal_stats',
     'error_views',
-    'coinbase',
     'cb_trades',
+    'cb_mark',
 ]
 
 

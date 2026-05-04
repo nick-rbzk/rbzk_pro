@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.cache import cache
-from coinbase.models import TradeType, TrendPeriod, TradeState
+from cb_mark.models import TradeType, TrendPeriod, TradeState
 logger = logging.getLogger(__name__)
 
 
