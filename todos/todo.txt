@@ -1,0 +1,40 @@
+# TODO
+
+#✅ include compression header for websocket connection
+#✅ autorestart the websocket on error
+#✅ Error 104 :Connection closed by peer Solution
+#✅ wsClient = cbpro.WebsocketClient(url="wss://ws-feed.pro.coinbase.com",
+#✅                                 products=["BTC-USD", "ETH-USD"],
+#✅                                 channels=["ticker"])
+#✅ wsClient.start()
+#✅ while true:
+#✅         if wsClient.error:
+#✅                 wsClient.close()
+#✅                 wsClient.error = None
+#✅                 wsClient.start()
+#✅         time.sleep(1)
+
+#  ❌ Celery have 3 Queus by priority.
+#       1-high = websocket messages
+#       2-default = trading strategies, db operations
+
+# ✅ clean up history data from coinbase. rearange the code.
+# ✅ historical data 55 days from coin base.
+# ✅ clean up migrations
+
+# ✅setup email for webvision ltd
+# ✅ S1 Strategie with a model
+# ✅ S2 strategie with a model
+# ✅ BUG :After a long websocket job with a lot of messages only 1 gets added to db
+# ✅one websocket connection never multiple
+# ✅Mark Trading pairs  outside of celery task
+# ✅struckture websocket messages
+# ✅write ws messages in to redis
+# ✅every minute empty redis cache
+# ✅two redis entries to hold messages one by one.
+# ✅when the celery tasks runs too empty one redis array
+# ✅the other one is being prepopulated
+# ✅flip the flag
+# ✅empty redis array is being prepopulted
+# ✅run the query against the full one.
+

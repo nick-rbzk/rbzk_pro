@@ -60,25 +60,3 @@ class CoinbaseWebSocketHandler:
         self.running = False
         if self.ws:
             self.ws.close()
-
-
-
-# {
-#     'type': 'ticker', 
-#     'sequence': 32448322892, 
-#     'product_id': 'XLM-USD', 
-#     'price': '0.160368', 
-#     'open_24h': '0.159737', 
-#     'volume_24h': '14671905.98494844', 
-#     'low_24h': '0.15888', 
-#     'high_24h': '0.16102', 
-#     'volume_30d': '994495995.19697110', 
-#     'best_bid': '0.160367', 
-#     'best_bid_size': '900.00000000', 
-#     'best_ask': '0.160402', 
-#     'best_ask_size': '2982.05052067', 
-#     'side': 'sell', 
-#     'time': '2026-05-02T23:00:38.589372Z', 
-#     'trade_id': 159000892, 
-#     'last_size': '6.9'
-#     }
