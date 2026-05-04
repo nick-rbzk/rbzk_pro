@@ -4,7 +4,7 @@ import logging
 from decimal import Decimal
 from datetime import datetime, timezone, timedelta
 from celery import shared_task
-from coinbase.models import *
+from cb_mark.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
 from rbzk.settings import CACHE_BIN_KEYS, BIN_TIMEOUT, \
@@ -13,24 +13,17 @@ from emails.tasks import trade_opened_email, trade_closed_email
 
 logger = logging.getLogger(__name__)
 
+TARGET_DB_PRICE_HISTORY_FIELDS = [
+    'product_id','sequence','price','open_24h','volume_24h','low_24h','high_24h',
+    'volume_30d','best_bid','best_bid_size','best_ask','best_ask_size','side',
+    'time','last_size','time_received','trade_id',
+]
 
-desired_db_price_history_fields = [
-        'product_id',
-        'price',
-        'open_24h',
-        'volume_24h',
-        'low_24h',
-        'high_24h',
-        'volume_30d',
-        'best_bid',
-        'best_bid_size',
-        'best_ask',
-        'best_ask_size',
-        'side',
-        'time',
-        'last_size',
-        'time_received',
-    ]
+VALID_FIELDS = [
+    'type', 'sequence', 'product_id', 'price', 'open_24h', 'volume_24h', 'low_24h', 
+    'high_24h', 'volume_30d', 'best_bid', 'best_bid_size', 'best_ask', 'best_ask_size',
+    'side', 'time', 'trade_id', 'last_size', 'time_received'
+]
 
 
 
@@ -93,47 +86,54 @@ def redis_store_price(data):
                 cache.set(bin_to_use_name, bin_to_use, BIN_TIMEOUT)
                 return True
         else:
-            print("ALL BINS----------------------")
-            print(bins)
-            print("BIN TO USE-----------------------")
-            print(bin_to_use)
-            print("BIN TO USE NAME------------------")
-            print(bin_to_use_name)
+            logger.error("Storage Bin was not Found", bins)
+            print("All bins", bins)
+            logger.error("Missing bin to use for precessing", bin_to_use)
             return False
 
+def valid_message(message):
+    if message:
+        for key in message.keys():
+            if key not in VALID_FIELDS:
+                logger.error("Message is missing a Key : %s", key)
+                return False
+        return True
+    logger.error("Invalid Message: %s", key)
+    return False
 
 
 @shared_task
 def db_record_price():
     bin_to_process = flip_bins()
     if not bin_to_process:
-        return "Full Bin was not found"
+        logger.error("Full Bin was not found.")
+        return False
     full_bin = cache.get(bin_to_process + STORAGE_PREFIX)
     db_data = {}
     for message in full_bin:
-        if not message["product_id"] in db_data.keys():
+        if not valid_message(message):
+            logger.error("Message is incomplete : %s", message)
+        else: 
+            if not message["product_id"] in db_data.keys():
+                db_data[message["product_id"]] = {
+                    "coinbase_date": message["time"],
+                    "low_price" : message["low_24h"],
+                    "high_price": message["high_24h"],
+                    "last_price": message["price"],
+                    "message_q": [message]
+                }
+            else:
+                db_data[message["product_id"]]["coinbase_date"] = message['time']
+                current_price = Decimal(message["price"])
+                low_price = Decimal(db_data[message["product_id"]]["low_price"])
+                high_price = Decimal(db_data[message["product_id"]]["high_price"])
+                if current_price > high_price :
+                    db_data[message["product_id"]]["high_price"] = message["price"]
+                if current_price < low_price:
+                    db_data[message["product_id"]]["low_price"] = message["price"]
 
-            db_data[message["product_id"]] = {
-                "coinbase_date": message["time"],
-                "low_price" : message["low_24h"],
-                "high_price": message["high_24h"],
-                "last_price": message["price"],
-                "message_q": [message]
-            }
-        else:
-            db_data[message["product_id"]]["coinbase_date"] = message['time']
-
-            current_price = Decimal(message["price"])
-            low_price = Decimal(db_data[message["product_id"]]["low_price"])
-            high_price = Decimal(db_data[message["product_id"]]["high_price"])
-            if current_price > high_price :
-                db_data[message["product_id"]]["high_price"] = message["price"]
-            if current_price < low_price:
-                db_data[message["product_id"]]["low_price"] = message["price"]
-
-            db_data[message["product_id"]]["last_price"] = message['price']
-            db_data[message["product_id"]]["message_q"].append(message)
-
+                db_data[message["product_id"]]["last_price"] = message['price']
+                db_data[message["product_id"]]["message_q"].append(message)
     for key in db_data.keys():
         try:
 
@@ -152,7 +152,7 @@ def db_record_price():
             message_store = db_data[key]["message_q"] 
             for message in message_store:
                 price_data = {}
-                for field in desired_db_price_history_fields:
+                for field in TARGET_DB_PRICE_HISTORY_FIELDS:
                         if field in message:
                             price_data[field] = message[field]
 

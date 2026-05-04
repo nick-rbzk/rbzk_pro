@@ -1,8 +1,6 @@
-import math
 from django.db import models
 from django.db.models.signals import pre_save
 from django.contrib.postgres.fields import ArrayField
-
 # Create your models here.
 
 
@@ -112,9 +110,9 @@ pre_save.connect(assign_trading_pair, sender=Trade)
 
 # TODO
 
-
 # ❌ include compression header for websocket connection
 # ❌ autorestart the websocket on error
+# ❌ Error 104 :Connection closed by peer Solution
 # wsClient = cbpro.WebsocketClient(url="wss://ws-feed.pro.coinbase.com",
 #                                 products=["BTC-USD", "ETH-USD"],
 #                                 channels=["ticker"])
@@ -127,22 +125,21 @@ pre_save.connect(assign_trading_pair, sender=Trade)
 #         time.sleep(1)
 
 
-#  Celery have 3 Queus by priority.
-#   1-high=websocket messages
-#   2-medium = trading strategies
-#   3 the rest.
-
-# Error 104 :Connection closed by peer Solution
+#  ❌ Celery have 3 Queus by priority.
+#       1-high = websocket messages
+#       2-default = trading strategies, db operations
 
 
 
 
 
-# ❌ historical data 55 days from coin base.
-# clean up migrations
 
 
 
+
+# ✅ clean up history data from coinbase. rearange the code.
+# ✅ historical data 55 days from coin base.
+# ✅ clean up migrations
 
 # ✅setup email for webvision ltd
 # ✅ S1 Strategie with a model

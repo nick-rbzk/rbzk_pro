@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 
 
-class CoinbaseConfig(AppConfig):
+class CbMarkConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'coinbase'
+    name    = 'cb_mark'
+    verbose_name = "Coinbase"

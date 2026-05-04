@@ -1,3 +1,6 @@
+from django.shortcuts import render
+
+# Create your views here.
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -25,7 +28,7 @@ def trading_options(request):
         if request.method == "GET":
             context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
             context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
-            trade_opened_email.delay()
+            # trade_opened_email.delay()
         if request.method == "POST":
             pairs_form = TradingPairForm(request.POST, is_active=None)
             if pairs_form.is_valid():

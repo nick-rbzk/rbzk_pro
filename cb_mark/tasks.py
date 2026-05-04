@@ -7,10 +7,11 @@ from cdp.auth.utils.jwt import generate_jwt, JwtOptions
 from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 from rbzk.celery import app
-from wbsockets.websocket_handler import CoinbaseWebSocketHandler
+from wbsockets.public_wbsocket import CoinbaseWebSocketHandlerAdvanced
+# from wbsockets.websocket_handler import CoinbaseWebSocketHandler
+# from wbsockets.coinbase_websoket import CoinbaseWebSocketHandler
 from rbzk.settings import GLOBAL_WS_TASK_NAME, BASE_DIR
 from .models import TradingPair, WebSocketTask, DayPriceLog
-
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ def run_coinbase_websocket(self, pair_ids):
 
     logger.info(f"Starting Coinbase WebSocket task {task_id}")
     
-    handler = CoinbaseWebSocketHandler(ticker_symbols, task_id)
+    # handler = CoinbaseWebSocketHandler(ticker_symbols, task_id)
+    handler = CoinbaseWebSocketHandlerAdvanced(ticker_symbols, task_id)
 
     try:
         handler.start()
