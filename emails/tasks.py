@@ -8,16 +8,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.cache import cache
 from cb_mark.models import TradeType, TrendPeriod, TradeState
+from cb_trades.cache_utils import cache_get_last_trade
+
 logger = logging.getLogger(__name__)
 
 
-
 @shared_task()
-def trade_opened_email(*args, **kwargs):
-    trade = cache.get("last_trade") 
+def trade_opened_email(trading_pair, *args, **kwargs):
+    trade = cache_get_last_trade(trading_pair)
     context = {}
-    if trade is None:
-        print("NO trade found")
+    if not trade:
+        logger.error("Can't send new trade email. Missing trade")
         return False
     
     context["currency"] = trade.ticker_symbol
@@ -67,13 +68,12 @@ def trade_opened_email(*args, **kwargs):
         logger.error("Sending email about deletion failed: %s", e)
 
 
-
 @shared_task()
-def trade_closed_email(*args, **kwargs):
-    trade = cache.get("last_trade") 
+def trade_closed_email(trading_pair, *args, **kwargs):
+    trade = cache_get_last_trade(trading_pair)
     context = {}
-    if trade is None:
-        print("NO trade found")
+    if not trade:
+        logger.error("Can't send closed trade email. Trade is missing.")
         return False
     
     context["currency"] = trade.ticker_symbol
