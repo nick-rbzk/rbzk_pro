@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os, sys
 from pathlib import Path
-import os
+from kombu import Queue
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -156,8 +157,24 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'  
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = "America/New_York"
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos
+CELERY_TASK_CREATE_MISSING_QUEUES = False
+CELERY_TASK_QUEUES = (
+    Queue('default'),
+    Queue('high_priority'),
+    Queue('low_priority'),
+)
+
+def route_task(name, args, kwargs, options, task=None, **kw):
+    if ':' in name:
+        queue, _ = name.split(':')
+        return {'queue': queue}
+    return {'queue': 'default'}
 
 
+CELERY_TASK_ROUTES = (route_task,)
 
 
 
@@ -225,15 +242,16 @@ GLOBAL_WS_TASK_NAME = 'websocket'
 
 # Coinbase websocket task cache Settings
 
-CACHE_BIN_KEYS = ['bin1', 'bin2']
-BIN_TIMEOUT = 3000
-STORAGE_PREFIX = "_STORAGE"
-BIN_STORAGE_KEYS = [key + STORAGE_PREFIX for key in CACHE_BIN_KEYS]
+CACHE_BIN_KEYS          = ['bin1', 'bin2']
+CACHE_BIN_TIMEOUT       = 3000
+CACHE_STORAGE_PREFIX    = "_STORAGE"
+CACHE_BIN_STORAGE_KEYS  = [key + CACHE_STORAGE_PREFIX for key in CACHE_BIN_KEYS]
+TRADES_CACHE_TIMEOUT    = 259200 # Three Days
+CACHE_TRADES_BIN_NAME   = 'last_trades'
 
 # Coinbase trade capital allocation
 
 USD_PER_TRADE = 2000
-
 
 
 # Email settings
@@ -247,3 +265,43 @@ EMAIL_HOST_USER = 'info@webvision.ltd'# Your full email address
 EMAIL_HOST_PASSWORD = 'UH!xAf^hRAeJz2'  # Your email account password
 DEFAULT_FROM_EMAIL = 'info@webvision.ltd'  # Default sender email
 SERVER_EMAIL = 'info@webvision.ltd'  # Email for server errors
+
+
+# Logging setup
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'stream': sys.stdout
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
+
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'ERROR',
+        },
+        'celery': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO'
+
+        },
+    }
+}
