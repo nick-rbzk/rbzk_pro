@@ -95,7 +95,7 @@ class Trade(models.Model):
     exit_price      = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     profit_loss     = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     dollar_amount   = models.DecimalField(max_digits=24, decimal_places=2, null=True, blank=True)
-    num_shares      = models.DecimalField(max_digits=24, decimal_places=2, null=True, blank=True, help_text="Shares purchased at enter price")
+    num_shares      = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True, help_text="Shares purchased at enter price")
     created_at      = models.DateTimeField(auto_now=False, auto_now_add=True)
     updated_at      = models.DateTimeField(auto_now=True, auto_now_add=False)
 
