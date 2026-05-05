@@ -4,7 +4,7 @@ import time
 import asyncio
 
 
-from cb_trades.tasks import redis_store_price
+from cb_trades.tasks import redis_store_price, strategy_s1
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,7 @@ class CoinbaseWebSocketHandlerAdvanced:
                     
                     # Process market data
                     redis_store_price.delay(message)
+                    strategy_s1.delay(message)
                     
             except websockets.ConnectionClosed as e:
                 logger.warning(f"Connection closed: {e}. Reconnecting...")
