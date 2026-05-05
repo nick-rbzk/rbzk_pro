@@ -11,7 +11,7 @@ from rbzk.settings import CACHE_BIN_KEYS, CACHE_BIN_TIMEOUT, \
     USD_PER_TRADE, CACHE_STORAGE_PREFIX, CACHE_BIN_STORAGE_KEYS, \
     CACHE_TRADES_BIN_NAME
 from emails.tasks import trade_opened_email, trade_closed_email
-from cache_utils import cache_get_last_trade, cache_update_last_trades,\
+from .cache_utils import cache_get_last_trade, cache_update_last_trades,\
     cache_set_last_trades, set_cache_bins, flip_bins
 
 logger = logging.getLogger(__name__)
