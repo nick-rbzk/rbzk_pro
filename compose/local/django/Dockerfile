@@ -26,9 +26,13 @@ COPY ./compose/local/django/start.sh /start.sh
 RUN sed -i 's/\r$//g' /start.sh
 RUN chmod +x /start.sh
 
-COPY ./compose/local/django/celery/worker/start.sh /start-celeryworker.sh
-RUN sed -i 's/\r$//g' /start-celeryworker.sh
-RUN chmod +x /start-celeryworker.sh
+COPY ./compose/local/django/celery/worker_default/start.sh /start-default-celeryworker.sh
+RUN sed -i 's/\r$//g' /start-default-celeryworker.sh
+RUN chmod +x /start-default-celeryworker.sh
+
+COPY ./compose/local/django/celery/worker_high/start.sh /start-high-celeryworker.sh
+RUN sed -i 's/\r$//g' /start-high-celeryworker.sh
+RUN chmod +x /start-high-celeryworker.sh
 
 COPY ./compose/local/django/celery/beat/start.sh /start-celerybeat.sh
 RUN sed -i 's/\r$//g' /start-celerybeat.sh

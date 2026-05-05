@@ -89,7 +89,7 @@ def build_jwt(ticker_symbol):
                       headers={'kid': key_name, 'nonce': secrets.token_hex()})
 
 
-@shared_task
+@shared_task(name="low_priority:setup_history_logs")
 def setup_history_logs():
     end_time = int(time.time())
     start_time = end_time - (56 * 86400)
@@ -139,13 +139,3 @@ def setup_history_logs():
                     )
                     yestarday_close = Decimal(obj["close"])
             time.sleep(0.5)
-
-
-# {
-#     'start': '1772755200', 
-#     'low': '0.150069', 
-#     'high': '0.160525', 
-#     'open': '0.156849', 
-#     'close': '0.15228', 
-#     'volume': '35666794.76762829'
-# }, 

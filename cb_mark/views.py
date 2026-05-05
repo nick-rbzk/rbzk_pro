@@ -22,6 +22,7 @@ def trading_options(request):
     print(cache.get("highs_lows"))
     print(cache.get("bin1_STORAGE"))
     print(cache.get("bin2_STORAGE"))
+    print(cache.get("last_trades"))
 
     context = {}
     if request.user.is_authenticated & request.user.is_staff:
