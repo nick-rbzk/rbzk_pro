@@ -32,12 +32,26 @@ services:
   redis:
     image: redis:7-alpine
 
-  celery_worker:
+  celery_worker_default:
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: rbzk_pro_celery_worker
-    command: /start-celeryworker.sh
+    image: rbzk_pro_celery_worker_default
+    command: /start-default-celeryworker.sh
+    volumes:
+      - .:/rbzk_pro
+    env_file:
+      - ./environment/.dev-sample
+    depends_on:
+      - redis
+      - db
+
+  celery_worker_high:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: rbzk_pro_celery_worker_high
+    command: /start-high-celeryworker.sh
     volumes:
       - .:/rbzk_pro
     env_file:
