@@ -131,10 +131,15 @@ redis:
     env_file:
       - ./environment/.prod-sample
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rbzk_network
+    
 
 
   flower:
@@ -150,8 +155,12 @@ redis:
     env_file:
       - ./environment/.prod-sample
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - rbzk_network
 
