@@ -14,6 +14,8 @@ services:
     depends_on:
       - web
       - flower
+    networks:
+      - rbzk_network
 
   web:
     build:
@@ -31,6 +33,8 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
 
   db:
     image: postgres:15-alpine
@@ -40,14 +44,26 @@ services:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
+    networks:
+      - rbzk_network
+
 
   redis:
     image: redis:6-alpine
+    networks:
+      - rbzk_network
+
 
   rabbitmq:
     image: rabbitmq:3-management
     env_file:
       - ./environment/.prod-sample
+    networks:
+      - rbzk_network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 
   celery_worker_default:
     build:
@@ -78,6 +94,8 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
 
   celery_beat:
     build:
@@ -93,6 +111,9 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
 
   flower:
     build:
@@ -109,6 +130,13 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
+networks:
+  rbzk_network:
+    driver: bridge
+
 
 volumes:
   postgresData:
