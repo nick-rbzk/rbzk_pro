@@ -66,7 +66,7 @@ WORKDIR /rbzk
 # copy project code
 COPY . .
 
-RUN chown -R django:django /rbzk
+RUN chown -R django:django rbzk
 
 USER django
 
