@@ -84,9 +84,6 @@ services:
     env_file:
       - ./environment/.prod-sample
     depends_on:
-      - redis
-      - db
-    depends_on:
       redis:
         condition: service_healthy
       db:
@@ -106,9 +103,6 @@ services:
       - mediafiles:/rbzk/mediafiles
     env_file:
       - ./environment/.prod-sample
-    depends_on:
-      - redis
-      - db
     networks:
       - rbzk_network
     depends_on:
@@ -119,7 +113,7 @@ services:
       rabbitmq:
         condition: service_healthy
 
-        
+
   celery_beat:
     build:
       context: .
