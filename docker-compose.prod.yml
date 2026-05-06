@@ -46,6 +46,11 @@ services:
       - POSTGRES_PASSWORD=hello_django
     networks:
       - rbzk_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hello_django -d hello_django"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 
   redis:
@@ -60,6 +65,11 @@ services:
       - ./environment/.prod-sample
     networks:
       - rbzk_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 
   celery_worker_default:
@@ -76,6 +86,14 @@ services:
     depends_on:
       - redis
       - db
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
 
   celery_worker_high:
     build:
@@ -93,7 +111,15 @@ services:
       - db
     networks:
       - rbzk_network
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
+        
   celery_beat:
     build:
       context: .
