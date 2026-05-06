@@ -92,7 +92,9 @@ services:
       - db
       - redis
       - rabbitmq
-    restart: on-failure 
+    restart: on-failure
+    networks:
+      - rbzk_network
 
 
   celery_worker_high:
