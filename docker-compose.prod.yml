@@ -29,7 +29,7 @@ services:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     depends_on:
       - redis
       - db
@@ -67,7 +67,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     networks:
       - rbzk_network
     healthcheck:
@@ -87,7 +87,7 @@ services:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     depends_on:
       - db
       - redis
@@ -107,7 +107,7 @@ services:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     depends_on:
       - db
       - redis
@@ -127,7 +127,7 @@ services:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     depends_on:
       redis:
         condition: service_healthy
@@ -151,7 +151,7 @@ services:
       - mediafiles:/rbzk/mediafiles
       - flower_db:/app/flower_db
     env_file:
-      - ./environment/.prod-sample
+      - ./environment/.prod
     depends_on:
       redis:
         condition: service_healthy
