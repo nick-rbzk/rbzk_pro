@@ -59,14 +59,15 @@ RUN mkdir /rbzk/logs
 RUN touch /rbzk/logs/access.log
 RUN touch /rbzk/logs/error.log
 
+RUN chown -R django:django /rbzk
+
 RUN mkdir /rbzk/staticfiles
 RUN mkdir /rbzk/mediafiles
+
 WORKDIR /rbzk
 
 # copy project code
 COPY . .
-
-RUN chown -R django:django rbzk
 
 USER django
 
