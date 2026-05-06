@@ -59,15 +59,21 @@ RUN mkdir /rbzk/logs
 RUN touch /rbzk/logs/access.log
 RUN touch /rbzk/logs/error.log
 
-RUN chown -R django:django /rbzk
 
-RUN mkdir /rbzk/staticfiles
-RUN mkdir /rbzk/mediafiles
+RUN mkdir -p /rbzk/staticfiles \
+    && mkdir -p /rbzk/mediafiles \
+    && chown -R django:django /rbzk \
+    && chmod -R 775 /rbzk/staticfiles \
+    && chmod -R 775 /rbzk/mediafiles \
+    && chmod g+s /rbzk/staticfiles \
+    && chmod g+s /rbzk/mediafiles
 
 WORKDIR /rbzk
 
 # copy project code
 COPY . .
+
+RUN chown -R django:django /rbzk
 
 USER django
 
