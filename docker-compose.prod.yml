@@ -49,12 +49,27 @@ services:
     env_file:
       - ./environment/.prod-sample
 
-  celery_worker:
+  celery_worker_default:
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
-    image: rbzk_pro_celery_worker
-    command: /start-celeryworker
+    image: rbzk_pro_celery_worker_default
+    command: /start-default-celeryworker
+    volumes:
+      - staticfiles:/rbzk/staticfiles
+      - mediafiles:/rbzk/mediafiles
+    env_file:
+      - ./environment/.prod-sample
+    depends_on:
+      - redis
+      - db
+
+  celery_worker_high:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: rbzk_pro_celery_worker_high
+    command: /start-high-celeryworker
     volumes:
       - staticfiles:/rbzk/staticfiles
       - mediafiles:/rbzk/mediafiles
