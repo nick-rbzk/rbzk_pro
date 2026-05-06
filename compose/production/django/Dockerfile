@@ -34,10 +34,15 @@ RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 RUN chown django /start
 
-COPY ./compose/production/django/celery/worker/start /start-celeryworker
-RUN sed -i 's/\r$//g' /start-celeryworker
-RUN chmod +x /start-celeryworker
-RUN chown django /start-celeryworker
+COPY ./compose/production/django/celery/worker_default/start /start-default-celeryworker
+RUN sed -i 's/\r$//g' /start-default-celeryworker
+RUN chmod +x /start-default-celeryworker
+RUN chown django /start-default-celeryworker
+
+COPY ./compose/production/django/celery/worker_high/start /start-high-celerywokkr
+RUN sed -i 's/\r$//g' /start-high-celeryworker
+RUN chmod +x /start-high-celeryworker
+RUN chown django /start-high-celeryworker
 
 COPY ./compose/production/django/celery/beat/start /start-celerybeat
 RUN sed -i 's/\r$//g' /start-celerybeat
