@@ -39,7 +39,7 @@ RUN sed -i 's/\r$//g' /start-default-celeryworker
 RUN chmod +x /start-default-celeryworker
 RUN chown django /start-default-celeryworker
 
-COPY ./compose/production/django/celery/worker_high/start /start-high-celerywokkr
+COPY ./compose/production/django/celery/worker_high/start /start-high-celeryworker
 RUN sed -i 's/\r$//g' /start-high-celeryworker
 RUN chmod +x /start-high-celeryworker
 RUN chown django /start-high-celeryworker
