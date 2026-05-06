@@ -16,7 +16,6 @@ services:
       - flower
 
   web:
-    user: "django"
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
