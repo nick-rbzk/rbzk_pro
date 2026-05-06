@@ -108,13 +108,13 @@ services:
       - mediafiles:/rbzk/mediafiles
     env_file:
       - ./environment/.prod-sample
-    networks:
-      - rbzk_network
     depends_on:
       - db
       - redis
       - rabbitmq
-    restart: on-failure 
+    restart: on-failure
+    networks:
+      - rbzk_network
 
 
   celery_beat:
