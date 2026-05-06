@@ -60,9 +60,6 @@ services:
       - ./environment/.prod-sample
     networks:
       - rbzk_network
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
 
   celery_worker_default:
