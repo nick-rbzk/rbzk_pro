@@ -89,12 +89,10 @@ services:
     env_file:
       - ./environment/.prod-sample
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      - db
+      - redis
+      - rabbitmq
+    restart: on-failure 
 
 
   celery_worker_high:
@@ -111,12 +109,10 @@ services:
     networks:
       - rbzk_network
     depends_on:
-      redis:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+      - db
+      - redis
+      - rabbitmq
+    restart: on-failure 
 
 
   celery_beat:
