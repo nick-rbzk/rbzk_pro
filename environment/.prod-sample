@@ -17,6 +17,7 @@ REDIS_CACHE_LOCATION=redis://redis:6379/1
 
 CELERY_BACKEND=redis://redis:6379/0
 CELERY_BROKER=amqp://admin:admin@rabbitmq:5672/
+
 CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//  # Use service name, not localhost
 CELERY_RESULT_BACKEND=rpc://
 

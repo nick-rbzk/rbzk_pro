@@ -44,6 +44,11 @@ services:
   redis:
     image: redis:6-alpine
 
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    env_file:
+      - ./environment/.prod-sample
+
   celery_worker_default:
     build:
       context: .
