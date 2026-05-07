@@ -21,10 +21,30 @@ def cache_get_last_trade(ticker_symbol):
     return False
 
 
+#  [2026-05-07 17:36:50,478: ERROR/ForkPoolWorker-1] Task low_priority:strategy_s1[de12194a-e82c-49e5-8d02-c9c64f7b4b37] raised unexpected: TypeError("'NoneType' object does not support item assignment")
+# celery_worker_default-1  | Traceback (most recent call last):
+# celery_worker_default-1  |   File "/usr/local/lib/python3.13/site-packages/celery/app/trace.py", line 585, in trace_task
+# celery_worker_default-1  |     R = retval = fun(*args, **kwargs)
+# celery_worker_default-1  |                  ~~~^^^^^^^^^^^^^^^^^
+# celery_worker_default-1  |   File "/usr/local/lib/python3.13/site-packages/celery/app/trace.py", line 858, in __protected_call__
+# celery_worker_default-1  |     return self.run(*args, **kwargs)
+# celery_worker_default-1  |            ~~~~~~~~^^^^^^^^^^^^^^^^^
+# celery_worker_default-1  |   File "/rbzk/cb_trades/tasks.py", line 257, in strategy_s1
+# celery_worker_default-1  |     cache_update_last_trades(last_trade, product_id)
+# celery_worker_default-1  |     ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+# celery_worker_default-1  |   File "/rbzk/cb_trades/cache_utils.py", line 27, in cache_update_last_trades
+# celery_worker_default-1  |     last_trades[ticker_symbol] = {"last_trade": last_trade}
+# celery_worker_default-1  |     ~~~~~~~~~~~^^^^^^^^^^^^^^^
+# celery_worker_default-1  | TypeError: 'NoneType' object does not support item assignment
+
 def cache_update_last_trades(last_trade, ticker_symbol):
     if last_trade is not None and ticker_symbol is not None:
         last_trades = cache.get(CACHE_TRADES_BIN_NAME)
-        last_trades[ticker_symbol] = {"last_trade": last_trade}
+        if last_trades is not None:
+            last_trades[ticker_symbol] = {"last_trade": last_trade}
+        else:
+            last_trades = {}
+            last_trades[ticker_symbol] = {"last_trade": last_trade}
         cache.set(CACHE_TRADES_BIN_NAME, last_trades,  TRADES_CACHE_TIMEOUT)
     else:
         logger.error("Failed to update last trades with current trade %s", last_trade)
