@@ -13,6 +13,7 @@ class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
     week_end    = models.DateTimeField()
     jobs_time   = models.DurationField(null=True)
+    hourly_rate = models.IntegerField(null=True, default=HOURLY_RATE)
     class Meta:
         ordering = ["-week_end"]
 
@@ -23,7 +24,7 @@ class WorkWeek(models.Model):
     
     def week_total(self):
         total_seconds = int(self.jobs_time.total_seconds())
-        rate_per_second = HOURLY_RATE / 3600
+        rate_per_second = self.hourly_rate / 3600
         total = total_seconds * rate_per_second
         dollars = math.floor(total / 100)
         cents = math.floor(total % 100)
@@ -49,7 +50,7 @@ class ParkJob(models.Model):
     
     def job_income(self):
         total_seconds = (self.job_end - self.job_start).total_seconds()
-        rate_per_second = HOURLY_RATE / 3600
+        rate_per_second = self.workweek.hourly_rate / 3600
         total = total_seconds * rate_per_second
         dollars = math.floor(total / 100)
         cents = math.floor(total % 100)
