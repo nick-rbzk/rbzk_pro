@@ -37,19 +37,6 @@ def cache_get_last_trade(ticker_symbol):
 # celery_worker_default-1  |     ~~~~~~~~~~~^^^^^^^^^^^^^^^
 # celery_worker_default-1  | TypeError: 'NoneType' object does not support item assignment
 
-def cache_update_last_trades(last_trade, ticker_symbol):
-    if last_trade is not None and ticker_symbol is not None:
-        last_trades = cache.get(CACHE_TRADES_BIN_NAME)
-        if last_trades is not None:
-            last_trades[ticker_symbol] = {"last_trade": last_trade}
-        else:
-            last_trades = {}
-            last_trades[ticker_symbol] = {"last_trade": last_trade}
-        cache.set(CACHE_TRADES_BIN_NAME, last_trades,  TRADES_CACHE_TIMEOUT)
-    else:
-        logger.error("Failed to update last trades with current trade %s", last_trade)
-
-
 
 def cache_set_last_trades():
     pairs = TradingPair.objects.all()
@@ -63,6 +50,23 @@ def cache_set_last_trades():
         cache.set(CACHE_TRADES_BIN_NAME, last_trades)
         return True
     return False
+
+
+
+def cache_update_last_trades(last_trade, ticker_symbol):
+    if last_trade is not None and ticker_symbol is not None:
+        last_trades = cache.get(CACHE_TRADES_BIN_NAME)
+        if last_trades is not None:
+            last_trades[ticker_symbol] = {"last_trade": last_trade}
+            cache.set(CACHE_TRADES_BIN_NAME, last_trades,  TRADES_CACHE_TIMEOUT)
+        else:
+            cache_set_last_trades()
+    else:
+        logger.error("Failed to update last trades with current trade %s", last_trade)
+
+
+
+
 
 def set_cache_bins():
     if not cache.has_key('bin1'):
