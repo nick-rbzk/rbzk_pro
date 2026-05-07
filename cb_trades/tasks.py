@@ -80,7 +80,7 @@ def valid_message(message):
 def db_record_price():
     bin_to_process_name = flip_bins()
     if not bin_to_process_name:
-        logger.error("Bin Name is None! :: %s", bin_to_process_name)
+        logger.error("No Bin Name! :: %s", bin_to_process_name)
         return False
     full_bin = cache.get(bin_to_process_name + CACHE_STORAGE_PREFIX)
     if full_bin is None:
@@ -120,7 +120,8 @@ def db_record_price():
                 coinbase_date=date,
                 ticker_symbol=key,
             )
-            
+            print(price_log)
+            print(created)
             if created:
                 print("New Object")
                 price_log.high_price = Decimal(db_data[key]['high_price'])
@@ -156,7 +157,7 @@ def db_record_price():
 
             except ObjectDoesNotExist as e:
                 print(e)
-                logger.error(f"Error processing message: {e}")
+                logger.error(f"Error Updating Price Log with ATR: {e}")
                 return False
 
             price_log.last_price = current_price
