@@ -78,11 +78,14 @@ def valid_message(message):
 
 @shared_task(name='low_priority:db_record_price')
 def db_record_price():
-    bin_to_process = flip_bins()
-    if not bin_to_process:
-        logger.error("Full Bin was not found.")
+    bin_to_process_name = flip_bins()
+    if not bin_to_process_name:
+        logger.error("Bin Name is None! :: %s", bin_to_process_name)
         return False
-    full_bin = cache.get(bin_to_process + CACHE_STORAGE_PREFIX)
+    full_bin = cache.get(bin_to_process_name + CACHE_STORAGE_PREFIX)
+    if full_bin is None:
+        logger.error("Full bin is not found. %s", full_bin)
+        return False
     db_data = {}
     for message in full_bin:
         if not valid_message(message):
@@ -163,7 +166,7 @@ def db_record_price():
             logger.error(f"Error processing message: {e}")
             return False
 
-    cache.set(bin_to_process + CACHE_STORAGE_PREFIX, [], CACHE_BIN_TIMEOUT)
+    cache.set(bin_to_process_name + CACHE_STORAGE_PREFIX, [], CACHE_BIN_TIMEOUT)
     return True
 
 
