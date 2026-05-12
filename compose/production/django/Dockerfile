@@ -78,4 +78,7 @@ COPY . .
 
 USER django
 
+RUN chown -R django:django /rbzk
+RUN chmod -R 775 /rbzk 
+
 ENTRYPOINT ["/entrypoint"]
