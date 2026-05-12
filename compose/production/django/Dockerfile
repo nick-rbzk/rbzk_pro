@@ -62,14 +62,14 @@ RUN touch /rbzk/logs/error.log
 
 RUN mkdir -p /rbzk/staticfiles \
     && mkdir -p /rbzk/mediafiles \
-    && mkdir -p /rbzk/home \
+    && mkdir -p /rbzk/home/migrations \
     && chown -R django:django /rbzk \
     && chmod -R 775 /rbzk/staticfiles \
     && chmod -R 775 /rbzk/mediafiles \
-    && chmod -R 775 /rbzk/home \
+    && chmod -R 775 /rbzk/home/migrations \
     && chmod g+s /rbzk/staticfiles \
     && chmod g+s /rbzk/mediafiles \
-    && chmod g+s /rbzk/home 
+    && chmod g+s /rbzk/home/migrations
 
 WORKDIR /rbzk
 
