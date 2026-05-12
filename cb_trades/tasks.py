@@ -237,7 +237,6 @@ def close_trade(trade, current_price, trend_period):
 @shared_task(name='low_priority:strategy_s1')
 def strategy_s1(data, *args, **kwargs):
     ticker_data     = json.loads(data)
-    print(ticker_data)
 
     if ticker_data is None or not ticker_data.get('type') == 'ticker':
         logger.error("Incorrect data %s", ticker_data)
