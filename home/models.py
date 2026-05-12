@@ -13,7 +13,7 @@ class WorkWeek(models.Model):
     week_start  = models.DateTimeField()
     week_end    = models.DateTimeField()
     jobs_time   = models.DurationField(null=True)
-    hourly_rate = models.IntegerField(null=True, default=HOURLY_RATE, help_text="Dollar = 100 pennies")
+    hourly_rate = models.IntegerField(null=True, default=HOURLY_RATE, help_text="1 Dollar = 100 pennies")
     class Meta:
         ordering = ["-week_end"]
 
