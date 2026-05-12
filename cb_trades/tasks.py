@@ -269,7 +269,6 @@ def strategy_s1(data, *args, **kwargs):
         # stop Loss mitigation
         if current_price == last_trade.stop_loss_price:
             close_trade(last_trade, current_price, TrendPeriod.STOP_LOSS)
-            cache_update_last_trades(last_trade, product_id)
             logger.info("Stop loss prevention, trade id: %s", last_trade.id)
             return True
         
@@ -285,7 +284,6 @@ def strategy_s1(data, *args, **kwargs):
                 if current_price < lowest_10day:
                     # sell the asset
                     close_trade(last_trade, current_price, TrendPeriod.TEN)
-            cache_update_last_trades(last_trade, product_id)
             return False
         
         if last_trade.buy_signal.trend_period == TrendPeriod.FIFTYFIVE:
@@ -299,7 +297,6 @@ def strategy_s1(data, *args, **kwargs):
                 if current_price < lowest_20day:
                     # sell the asset
                     close_trade(last_trade, current_price, TrendPeriod.TWENTY)
-            cache_update_last_trades(last_trade, product_id)
             return False
         
     if last_trade.profit_loss < 0  and last_trade.state == TradeState.CLOSED:
