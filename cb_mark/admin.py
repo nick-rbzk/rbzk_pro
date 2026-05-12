@@ -7,17 +7,17 @@ from .models import *
 # admin.site.register(TradingPair)
 admin.site.register(WebSocketTask)
 
-@admin.site.register(TradingPair)
+@admin.register(TradingPair)
 class TradingPairAdmin(admin.ModelAdmin):
     list_display = ('ticker_symbol', 'is_active', 'highest_10day', 
-        'lowest_10day', 'highest_20day', 'lowest_20day', 'highest_55day', 'lowest_55day', "current_price") 
+        'lowest_10day', 'highest_20day', 'lowest_20day', 'highest_55day', 
+        'lowest_55day', "current_price") 
     
     def current_price(self, obj):
         d_log = DayPriceLog.objects.get(
             coinbase_date = datetime.now(),
             ticker_symbol=obj.ticker_symbol
         )
-        self.last_price = d_log.last_price
         return d_log.last_price
 
 @admin.register(DayPriceLog)
