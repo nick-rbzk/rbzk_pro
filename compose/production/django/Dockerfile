@@ -66,7 +66,7 @@ RUN mkdir -p /rbzk/staticfiles \
     && chmod -R 775 /rbzk/staticfiles \
     && chmod -R 775 /rbzk/mediafiles \
     && chmod g+s /rbzk/staticfiles \
-    && chmod g+s /rbzk/mediafiles \
+    && chmod g+s /rbzk/mediafiles 
 
 WORKDIR /rbzk
 
