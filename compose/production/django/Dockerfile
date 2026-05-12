@@ -65,8 +65,10 @@ RUN mkdir -p /rbzk/staticfiles \
     && chown -R django:django /rbzk \
     && chmod -R 775 /rbzk/staticfiles \
     && chmod -R 775 /rbzk/mediafiles \
+    && chmod -R 775 /rbzk/home \
     && chmod g+s /rbzk/staticfiles \
     && chmod g+s /rbzk/mediafiles
+    && chmod g+s /rbzk/home
 
 WORKDIR /rbzk
 
