@@ -127,6 +127,7 @@ def db_record_price():
                 print("New Object")
                 price_log.high_price = Decimal(db_data[key]['high_price'])
                 price_log.low_price = Decimal(db_data[key]['low_price'])
+                set_highs_and_lows.delay()
 
             message_store = db_data[key]["message_q"] 
             for message in message_store:
@@ -376,5 +377,12 @@ def set_highs_and_lows():
                     "highest_55day": highest_55day,
                     "lowest_55day": lowest_55day,
                 }
+        pair.highest_20day  = highest_20day
+        pair.lowest_20day   = lowest_20day
+        pair.highest_10day  = highest_10day
+        pair.lowest_10day   = lowest_10day
+        pair.highest_55day  = highest_55day
+        pair.lowest_55day   = lowest_55day
+        pair.save()
     cache.set("highs_lows", cache_data, 172800)
     return True

@@ -38,6 +38,12 @@ class TradingPair(models.Model):
     name            = models.CharField(max_length=1024, blank=False, null=True)
     is_active       = models.BooleanField(default=False, blank=False, null=False)
     running_task    = models.ForeignKey(WebSocketTask,on_delete=models.SET_NULL, null=True, blank=True)
+    highest_20day   = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    lowest_20day    = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    highest_10day   = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    lowest_10day    = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    highest_55day   = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
+    lowest_55day    = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
 
     def __str__(self):
         state = 'OFF'
