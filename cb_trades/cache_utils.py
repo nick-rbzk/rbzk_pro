@@ -47,7 +47,7 @@ def cache_set_last_trades():
                 ticker_symbol=p.ticker_symbol
                 ).order_by("created_at").last()
             last_trades[p.ticker_symbol] = {"last_trade": last_trade}
-        cache.set(CACHE_TRADES_BIN_NAME, last_trades)
+        cache.set(CACHE_TRADES_BIN_NAME, last_trades, TRADES_CACHE_TIMEOUT)
         return True
     return False
 
@@ -62,7 +62,10 @@ def cache_update_last_trades(last_trade, ticker_symbol):
         else:
             cache_set_last_trades()
     else:
-        logger.error("Failed to update last trades with current trade %s", last_trade)
+        try:
+            cache_set_last_trades()
+        except Exception as e:
+            logger.error("Failed to update last trades %s", e)
 
 
 
