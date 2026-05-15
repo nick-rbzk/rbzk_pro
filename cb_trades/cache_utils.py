@@ -13,9 +13,6 @@ def cache_get_last_trade(ticker_symbol):
         last_trades = cache.get(CACHE_TRADES_BIN_NAME)
         if type(last_trades) == dict:
             if ticker_symbol in last_trades.keys():
-                print("Where none type comes from")
-                print(last_trades)
-                print(last_trades[ticker_symbol])
                 return last_trades[ticker_symbol]["last_trade"]
         logger.error("Failed to get last trades object %s for ticekr symbol: %s",
                     last_trades, ticker_symbol
