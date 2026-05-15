@@ -253,7 +253,9 @@ def strategy_s1(data, *args, **kwargs):
     current_price   = Decimal(ticker_data.get('price'))
     product_id      = ticker_data.get('product_id')
     last_trade      = cache_get_last_trade(product_id)
-    if not last_trade:
+    print("last Trade ffom get gunction")
+    print(last_trade)
+    if not last_trade or last_trade is None:
         last_trade = Trade.objects.filter(ticker_symbol=product_id).order_by("created_at").last()
         print("Last Trade from query")
         print(last_trade)
