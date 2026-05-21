@@ -92,8 +92,8 @@ class CoinbaseWebSocketHandlerAdvanced:
                         pass
                     
                     # Process market data
-                    # redis_store_price.delay(message)
-                    # strategy_s1.delay(message)
+                    redis_store_price.delay(message)
+                    strategy_s1.delay(message)
                     
             except websockets.ConnectionClosed as e:
                 logger.warning(f"Connection closed: {e}. Reconnecting...")
