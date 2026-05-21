@@ -8,8 +8,7 @@ from cb_mark.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
 from rbzk.settings import CACHE_BIN_KEYS, CACHE_BIN_TIMEOUT, \
-    USD_PER_TRADE, CACHE_STORAGE_PREFIX, CACHE_BIN_STORAGE_KEYS, \
-    CACHE_TRADES_BIN_NAME
+    USD_PER_TRADE, CACHE_STORAGE_PREFIX, TRADES_CACHE_TIMEOUT
 from emails.tasks import trade_opened_email, trade_closed_email
 from .cache_utils import cache_get_last_trade, cache_update_last_trades,\
     cache_set_last_trades, set_cache_bins, flip_bins
@@ -381,5 +380,5 @@ def set_highs_and_lows():
         pair.highest_55day  = highest_55day
         pair.lowest_55day   = lowest_55day
         pair.save()
-    cache.set("highs_lows", cache_data, 172800)
+    cache.set("highs_lows", cache_data, TRADES_CACHE_TIMEOUT)
     return True
