@@ -174,7 +174,10 @@ def db_record_price():
 
 @shared_task(name='low_priority:cache_set_last_trades')
 def task_cache_set_last_trades():
-    cache_set_last_trades()
+    try:
+        return cache_set_last_trades()
+    except Exception as e:
+        logger.error("Failed to set last Trades in cache. Error %s", e)
 
 
 def open_trade(ticker_data, trade_type, trend_period):
