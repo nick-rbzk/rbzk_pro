@@ -90,9 +90,12 @@ def build_jwt(ticker_symbol):
 
 
 @shared_task(name="low_priority:setup_history_logs")
-def setup_history_logs():
+def setup_history_logs(days):
     end_time = int(time.time())
-    start_time = end_time - (56 * 86400)
+    if days is None:
+        days = 56
+    days = int(days)
+    start_time = end_time - (days * 86400)
     granularity = 'ONE_DAY'
     trading_pairs = TradingPair.objects.all()
 
