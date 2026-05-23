@@ -1,5 +1,6 @@
 import json
 import logging
+import gc
 
 from decimal import Decimal
 from datetime import datetime, timezone, timedelta
@@ -163,12 +164,14 @@ def db_record_price():
 
             price_log.last_price = current_price
             price_log.save()
+            del price_log
             logger.info(f"Price log update SUCCESS")
         except Exception as e:
             logger.error(f"Error processing message: {e}")
             return False
 
     cache.set(bin_to_process_name + CACHE_STORAGE_PREFIX, [], CACHE_BIN_TIMEOUT)
+    gc.collect()
     return True
 
 
@@ -384,4 +387,6 @@ def set_highs_and_lows():
         pair.lowest_55day   = lowest_55day
         pair.save()
     cache.set("highs_lows", cache_data, TRADES_CACHE_TIMEOUT)
+    del trading_pairs
+    gc.collect()
     return True
