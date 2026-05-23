@@ -216,9 +216,10 @@ def open_trade(ticker_data, trade_type, trend_period):
             dollar_amount = Decimal(USD_PER_TRADE),
             num_shares=Decimal(USD_PER_TRADE) / Decimal(ticker_data.get("price"))
         )
-
     cache_update_last_trades(trade, trading_pair)
     trade_opened_email.delay(trading_pair)
+    del trade
+    gc.collect()
 
 def close_trade(trade, current_price, trend_period):
     break_out_signal = BreakOutSignal.objects.create(
@@ -275,6 +276,8 @@ def strategy_s1(data, *args, **kwargs):
         if current_price == last_trade.stop_loss_price:
             close_trade(last_trade, current_price, TrendPeriod.STOP_LOSS)
             logger.info("Stop loss prevention, trade id: %s", last_trade.id)
+            del last_trade
+            gc.collect()
             return True
         
         # Turtle Strategy
@@ -289,6 +292,8 @@ def strategy_s1(data, *args, **kwargs):
                 if current_price < lowest_10day:
                     # sell the asset
                     close_trade(last_trade, current_price, TrendPeriod.TEN)
+            del last_trade
+            gc.collect()
             return False
         
         if last_trade.buy_signal.trend_period == TrendPeriod.FIFTYFIVE:
@@ -302,6 +307,8 @@ def strategy_s1(data, *args, **kwargs):
                 if current_price < lowest_20day:
                     # sell the asset
                     close_trade(last_trade, current_price, TrendPeriod.TWENTY)
+            del last_trade
+            gc.collect()
             return False
         
     if last_trade.profit_loss < 0  and last_trade.state == TradeState.CLOSED:
