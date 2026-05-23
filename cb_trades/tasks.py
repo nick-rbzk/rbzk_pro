@@ -387,6 +387,7 @@ def set_highs_and_lows():
         pair.lowest_55day   = lowest_55day
         pair.save()
     cache.set("highs_lows", cache_data, TRADES_CACHE_TIMEOUT)
+    del day_logs
     del trading_pairs
     gc.collect()
     return True
