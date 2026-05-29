@@ -230,7 +230,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Spotter job earnings/rate settings
 
-HOURLY_RATE = 1000
+HOURLY_RATE = 1100
 WEEK_TIME_START = "00:00"
 WEEK_TIME_END = "23:59"
 
