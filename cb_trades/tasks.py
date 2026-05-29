@@ -236,6 +236,7 @@ def close_trade(trade, current_price, trend_period):
         if trade.type == TradeType.LONG:
             trade.profit_loss = (trade.num_shares * current_price) - trade.dollar_amount
     trade.sell_signal = break_out_signal
+    trade.exit_price = Decimal(current_price)
     trade.save()
     cache_update_last_trades(trade, trade.ticker_symbol)
     trade_closed_email.delay(trade.ticker_symbol)
