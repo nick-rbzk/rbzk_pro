@@ -93,7 +93,7 @@ def build_jwt(ticker_symbol):
 def setup_history_logs(days=None):
     end_time = int(time.time())
     if days is None:
-        days = 56
+        days = 57
     days = int(days)
     start_time = end_time - (days * 86400)
     granularity = 'ONE_DAY'
@@ -120,7 +120,7 @@ def setup_history_logs(days=None):
                 candles = response.json()["candles"]
                 cs = list(candles)
                 yestarday_close = None
-                for i in range(len(cs)-1, -1, -1):
+                for i in range(len(cs)-1, 1, -1):
                     obj = cs[i]
                     date = datetime.fromtimestamp(int(obj["start"]))
                     high_price = Decimal(obj["high"])
