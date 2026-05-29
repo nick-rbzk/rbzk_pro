@@ -152,6 +152,8 @@ services:
       - flower_db:/app/flower_db
     env_file:
       - ./environment/.prod
+    ports:
+      - 5555:5555
     depends_on:
       redis:
         condition: service_healthy
