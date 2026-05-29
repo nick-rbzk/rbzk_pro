@@ -120,7 +120,7 @@ def setup_history_logs(days=None):
                 candles = response.json()["candles"]
                 cs = list(candles)
                 yestarday_close = None
-                for i in range(len(cs)-1, 1, -1):
+                for i in range(len(cs)-1, 0, -1):
                     obj = cs[i]
                     date = datetime.fromtimestamp(int(obj["start"]))
                     high_price = Decimal(obj["high"])
