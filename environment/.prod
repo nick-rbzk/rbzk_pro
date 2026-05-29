@@ -23,6 +23,8 @@ CELERY_RESULT_BACKEND=rpc://
 
 CELERY_FLOWER_USER=admin
 CELERY_FLOWER_PASSWORD=admin
+FLOWER_URL_PREFIX=/celery
+
 
 CHANNELS_REDIS=redis://redis:6379/0
 
@@ -32,3 +34,5 @@ COINBASE_KEY_SECRET="-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEICZTStwfk31r4ffYu5z
 
 # Time zone config for docker containers
 export TZ="America/New_York"
+
+
