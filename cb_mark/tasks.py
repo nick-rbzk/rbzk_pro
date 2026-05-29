@@ -90,7 +90,7 @@ def build_jwt(ticker_symbol):
 
 
 @shared_task(name="low_priority:setup_history_logs")
-def setup_history_logs(days):
+def setup_history_logs(days=None):
     end_time = int(time.time())
     if days is None:
         days = 56
