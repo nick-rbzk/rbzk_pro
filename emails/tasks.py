@@ -80,7 +80,7 @@ def trade_closed_email(trading_pair, *args, **kwargs):
     context["result"] = trade.profit_loss
     context["opened_on"] = trade.created_at
     context["closed_on"] = trade.updated_at
-    context["days_active"] = trade.updated_at - trade.created_ats
+    context["days_active"] = trade.updated_at - trade.created_at
     context["exit_price"] = trade.exit_price
 
     if trade.type == TradeType.SHORT:
