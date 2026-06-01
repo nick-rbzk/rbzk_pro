@@ -166,6 +166,8 @@ CELERY_TASK_QUEUES = (
     Queue('high_priority'),
     Queue('low_priority'),
 )
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = 200_000_000  # 200MB per child
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 100  # Restart after 100 tasks
 
 def route_task(name, args, kwargs, options, task=None, **kw):
     if ':' in name:

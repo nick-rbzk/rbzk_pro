@@ -165,12 +165,14 @@ def db_record_price():
             price_log.last_price = current_price
             price_log.save()
             del price_log
+            del yestarday_dpl
+            del message_store
             logger.info(f"Price log update SUCCESS")
         except Exception as e:
             logger.error(f"Error processing message: {e}")
             return False
-
     cache.set(bin_to_process_name + CACHE_STORAGE_PREFIX, [], CACHE_BIN_TIMEOUT)
+    del db_data
     gc.collect()
     return True
 
@@ -333,7 +335,8 @@ def strategy_s1(data, *args, **kwargs):
             # Breakout signal buy short
             open_trade(ticker_data, TradeType.SHORT, TrendPeriod.FIFTYFIVE)
         return True
-
+    del ticker_data
+    gc.collect()
 
 @shared_task(name='low_priority:set_highs_and_lows')
 def set_highs_and_lows():

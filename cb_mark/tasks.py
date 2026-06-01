@@ -1,4 +1,4 @@
-import jwt, time, secrets, os, logging, requests, time, os
+import jwt, time, secrets, os, logging, requests, time
 
 from cryptography.hazmat.primitives import serialization
 from decimal import Decimal
