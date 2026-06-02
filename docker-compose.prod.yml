@@ -77,7 +77,7 @@ services:
 
   celery_worker_default:
     oom_score_adj: -500
-    mem_limit: 5g
+    mem_limit: 4g
     restart: always
     build:
       context: .
