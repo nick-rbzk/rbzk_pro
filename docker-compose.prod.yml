@@ -78,6 +78,7 @@ services:
   celery_worker_default:
     oom_score_adj: -500
     mem_limit: 4g
+    restart: always
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
@@ -100,6 +101,7 @@ services:
   celery_worker_high:
     oom_score_adj: -500
     mem_limit: 2g 
+    restart: always
     build:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
