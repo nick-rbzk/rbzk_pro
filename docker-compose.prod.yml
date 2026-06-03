@@ -99,7 +99,7 @@ services:
 
   celery_worker_high:
     oom_score_adj: -500
-    mem_limit: 2g 
+    mem_limit: 4g 
     restart: always
     build:
       context: .

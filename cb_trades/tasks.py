@@ -36,7 +36,7 @@ def get_full_bin():
     return False
 
 
-@shared_task(name='high_priority:redis_store_price')
+@shared_task(name='high_priority:redis_store_price', acks_late=True, reject_on_worker_lost=True)
 def redis_store_price(data):
     ticker_data = json.loads(data)
     if ticker_data.get('type') == 'ticker':
@@ -76,7 +76,7 @@ def valid_message(message):
     return False
 
 
-@shared_task(name='low_priority:db_record_price')
+@shared_task(name='low_priority:db_record_price', acks_late=True, reject_on_worker_lost=True)
 def db_record_price():
     bin_to_process_name = flip_bins()
     if not bin_to_process_name:
@@ -244,7 +244,7 @@ def close_trade(trade, current_price, trend_period):
     trade_closed_email.delay(trade.ticker_symbol)
 
 
-@shared_task(name='low_priority:strategy_s1')
+@shared_task(name='low_priority:strategy_s1', acks_late=True, reject_on_worker_lost=True)
 def strategy_s1(data, *args, **kwargs):
     ticker_data     = json.loads(data)
 
