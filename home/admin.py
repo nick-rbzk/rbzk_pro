@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 from .models import *
+from utils.taxes import *
 # Register your models here.
 
 admin.site.register(FormSubmission)
@@ -31,7 +32,7 @@ class ParkJobAdmin(admin.ModelAdmin):
 
 @admin.register(WorkWeek)
 class WorkWeekAdmin(admin.ModelAdmin):
-    list_display    = ("week_start", "week_end", "jobs_time", "week_total", "hourly_rate")
+    list_display    = ("week_start", "week_end", "jobs_time", "week_total", "tax_breakdown", "tax_total")
     list_filter     = ("week_start", "week_end")
     search_fields   = ("jobs_time",)
 
@@ -42,7 +43,34 @@ class WorkWeekAdmin(admin.ModelAdmin):
         dollars = '{0:.0f}'.format(total / 100)
         cents = '{0:.0f}'.format(total % 100)
         return '{}.{}$'.format(dollars, cents)
-    
+
+    def tax_breakdown(self, obj):
+        total_seconds = int(obj.jobs_time.total_seconds())
+        rate_per_second = obj.hourly_rate / 3600
+        total = total_seconds * rate_per_second
+        dollars = '{0:.0f}'.format(total / 100)
+        cents = '{0:.0f}'.format(total % 100)
+        income = '{}.{}'.format(dollars, cents)
+        income = float(income) 
+        self_employ_owed = self_employ_tax(income)
+        federal_owed = federal_income_tax(income)
+        return f"Self Employment:{self_employ_owed}$. Federal: {federal_owed}$"
+
+    def tax_total(self, obj):
+        total_seconds = int(obj.jobs_time.total_seconds())
+        rate_per_second = obj.hourly_rate / 3600
+        total = total_seconds * rate_per_second
+        dollars = '{0:.0f}'.format(total / 100)
+        cents = '{0:.0f}'.format(total % 100)
+        income = '{}.{}'.format(dollars, cents)
+        income = float(income) 
+        self_employ_owed = self_employ_tax(income)
+        federal_owed = federal_income_tax(income)
+        return f"Total Owed: {federal_owed + self_employ_owed}$"
+
+
     # week_total.admin_order_field = 'timefield'
     week_total.short_description = 'Week\'s Total'  
+    tax_breakdown.short_description = 'Tax breakdown'  
+    tax_total.short_description = 'Total Tax Owed'  
     
