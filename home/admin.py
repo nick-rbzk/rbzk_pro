@@ -30,7 +30,7 @@ class ParkJobAdmin(admin.ModelAdmin):
     def tax_breakdown(self, obj):
         income = float(obj.job_income()) 
         self_employ_owed = self_employ_tax(income)
-        self_employ_owed =  '{0:.j2f}'.format(self_employ_owed)
+        self_employ_owed =  '{0:.2f}'.format(self_employ_owed)
         federal_owed = federal_income_tax(income)
         federal_owed =  '{0:.2f}'.format(federal_owed)
         return f"Self Employ: {self_employ_owed}$. Federal: {federal_owed}$"
