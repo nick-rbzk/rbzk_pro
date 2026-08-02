@@ -65,7 +65,9 @@ class WorkWeekAdmin(admin.ModelAdmin):
         income = '{}.{}'.format(dollars, cents)
         income = float(income) 
         self_employ_owed = self_employ_tax(income)
+        self_employ_owed =  '{0:.0f}'.format(self_employ_owed)
         federal_owed = federal_income_tax(income)
+        federal_owed =  '{0:.0f}'.format(federal_owed)
         return f"Total Owed: {federal_owed + self_employ_owed}$"
 
 
