@@ -41,7 +41,7 @@ class ParkJobAdmin(admin.ModelAdmin):
         federal_owed = federal_income_tax(income)
         total = self_employ_owed + federal_owed
         total =  '{0:.2f}'.format(total)
-        return f"Total Owed: {total}$"
+        return f"{total}$"
     
     total.short_desctioption = "Total Income"
     tax_breakdown.short_description = 'Tax breakdown'  
