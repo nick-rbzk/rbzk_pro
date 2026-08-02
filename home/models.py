@@ -46,7 +46,7 @@ class ParkJob(models.Model):
     def __str__(self):
         # return f"START - {timezone.localtime(self.job_start):%m/%d/%Y %I:%M %p}  \
             # |||  END - {timezone.localtime(self.job_end):%m/%d/%Y %I:%M %p}"
-        return  f"CONF# - {self.confirmation} ||| Total: {self.job_income()}"
+        return  f"CONF# - {self.confirmation} ||| Total: {self.job_income()}$"
     
     def job_income(self):
         total_seconds = (self.job_end - self.job_start).total_seconds()
@@ -55,7 +55,7 @@ class ParkJob(models.Model):
         dollars = math.floor(total / 100)
         cents = math.floor(total % 100)
 
-        return '{}.{}$'.format(dollars, cents)
+        return '{}.{}'.format(dollars, cents)
     
 class FormSubmission(models.Model):
     name = models.CharField(max_length=2024, blank=True, null=True)

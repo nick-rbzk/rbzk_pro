@@ -25,7 +25,7 @@ class ParkJobAdmin(admin.ModelAdmin):
     jb_end.short_description = 'Job End'
  
     def total(self, obj):
-        return f"{obj.job_income()}"
+        return f"{obj.job_income()}$"
 
     def tax_breakdown(self, obj):
         income = float(obj.job_income()) 
