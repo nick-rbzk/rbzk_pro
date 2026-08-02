@@ -56,7 +56,7 @@ class WorkWeekAdmin(admin.ModelAdmin):
         self_employ_owed =  '{0:.0f}'.format(self_employ_owed)
         federal_owed = federal_income_tax(income)
         federal_owed =  '{0:.0f}'.format(federal_owed)
-        return f"Self Employ:{self_employ_owed}$. Federal: {federal_owed}$"
+        return f"Self Employ: {self_employ_owed}$. Federal: {federal_owed}$"
 
     def tax_total(self, obj):
         total_seconds = int(obj.jobs_time.total_seconds())
