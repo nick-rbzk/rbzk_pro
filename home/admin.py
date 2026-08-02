@@ -53,9 +53,9 @@ class WorkWeekAdmin(admin.ModelAdmin):
         income = '{}.{}'.format(dollars, cents)
         income = float(income) 
         self_employ_owed = self_employ_tax(income)
-        self_employ_owed =  '{0:.0f}'.format(self_employ_owed)
+        self_employ_owed =  '{0:.2f}'.format(self_employ_owed)
         federal_owed = federal_income_tax(income)
-        federal_owed =  '{0:.0f}'.format(federal_owed)
+        federal_owed =  '{0:.2f}'.format(federal_owed)
         return f"Self Employ: {self_employ_owed}$. Federal: {federal_owed}$"
 
     def tax_total(self, obj):
@@ -69,7 +69,7 @@ class WorkWeekAdmin(admin.ModelAdmin):
         self_employ_owed = self_employ_tax(income)
         federal_owed = federal_income_tax(income)
         total = self_employ_owed + federal_owed
-        total =  '{0:.0f}'.format(total)
+        total =  '{0:.2f}'.format(total)
         return f"Total Owed: {total}$"
 
 
