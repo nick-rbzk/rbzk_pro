@@ -6,6 +6,7 @@ from django.db.models.signals import post_save, post_delete
 from django.utils import timezone
 from utils.which_week import which_week
 from utils.update_week_hours import update_workweek_hours
+from utils.taxes import income_after_tax, total_taxes
 from rbzk.settings import HOURLY_RATE
 
 
@@ -56,6 +57,13 @@ class ParkJob(models.Model):
         cents = math.floor(total % 100)
 
         return '{}.{}'.format(dollars, cents)
+
+    def income_after_tax(self):
+        return income_after_tax(self)
+
+    def taxes_owed(self):
+        return total_taxes(self)
+
     
 class FormSubmission(models.Model):
     name = models.CharField(max_length=2024, blank=True, null=True)

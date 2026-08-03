@@ -2,12 +2,12 @@ from datetime import datetime
 from django.contrib import admin
 from django.core.cache import cache
 from .models import *
+from rbzk.admin import admin_site
 
-# Register your models here.
-# admin.site.register(TradingPair)
-admin.site.register(WebSocketTask)
+# admin.site.register(WebSocketTask)
+admin_site.register(WebSocketTask)
 
-@admin.register(TradingPair)
+# @admin.register(TradingPair)
 class TradingPairAdmin(admin.ModelAdmin):
     list_display = ('ticker_symbol', 'is_active', 'highest_10day', 
         'lowest_10day', 'highest_20day', 'lowest_20day', 'highest_55day', 
@@ -19,8 +19,9 @@ class TradingPairAdmin(admin.ModelAdmin):
             ticker_symbol=obj.ticker_symbol
         )
         return d_log.last_price
+admin_site.register(TradingPair, TradingPairAdmin)
 
-@admin.register(DayPriceLog)
+# @admin.register(DayPriceLog)
 class DayPriceLogAdmin(admin.ModelAdmin):
     list_display = ('ticker_symbol', "high_price", "low_price", "spread",'last_price', 'n_atr', 'coinbase_date', "num_messages","updated_at")
     exclude = ('price_history',)
@@ -34,14 +35,15 @@ class DayPriceLogAdmin(admin.ModelAdmin):
         if obj.high_price and obj.low_price:
             return obj.high_price - obj.low_price
         return ""
+admin_site.register(DayPriceLog, DayPriceLogAdmin)
 
-
-@admin.register(BreakOutSignal)
+# @admin.register(BreakOutSignal)
 class BreakOutSignalAdmin(admin.ModelAdmin):
     list_display = ("trading_pair", "break_out_price", "trend_period", "trend_direction", "created_at") 
 
+admin_site.register(BreakOutSignal, BreakOutSignalAdmin)
 
-@admin.register(Trade)
+# @admin.register(Trade)
 class TradeAdmin(admin.ModelAdmin):
     last_price = None
     currency = ""
@@ -68,4 +70,5 @@ class TradeAdmin(admin.ModelAdmin):
             if obj.type == TradeType.LONG:
                 return '{0:.2f}'.format((obj.num_shares * self.last_price) - obj.dollar_amount)
     if_sold.short_description = "if sold @ current price"
-    
+
+admin_site.register(Trade,  TradeAdmin) 

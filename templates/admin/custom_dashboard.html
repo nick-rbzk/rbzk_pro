@@ -1,0 +1,127 @@
+<!-- templates/admin/custom_dashboard.html -->
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .dashboard-container {
+        padding: 20px;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin: 20px 0;
+    }
+    .stat-card {
+        background: transparent;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        border-left: 4px solid #417690;
+    }
+    .stat-card.pending { border-left-color: #ffc107; }
+    .stat-card.approved { border-left-color: #28a745; }
+    .stat-card.rejected { border-left-color: #dc3545; }
+    .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #417690;
+    }
+    .stat-card.pending .stat-value { color: #ffc107; }
+    .stat-card.approved .stat-value { color: #28a745; }
+    .stat-card.rejected .stat-value { color: #dc3545; }
+    .stat-label {
+        color: #666;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .module {
+        background: white;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+    }
+    .status-badge {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    
+    <div class="stats-grid">
+        
+        <div class="stat-card approved">
+            <div class="stat-label">After Tax Income</div>
+            <div class="stat-value">{{ income_after_tax|default:0 }}</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-label">Taxes Owed This Year.</div>
+            <div class="stat-value">{{ tax_total|default:0 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Income</div>
+            <div class="stat-value">{{ income_total|default:0 }}</div>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        <div class="module">
+            <h2>Recent Jobs</h2>
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Confirmation</th>
+                        <th>Income After Tax</th>
+                        <th>Taxes Owed</th>
+                        <th>Total Income</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in jobs %}
+                    <tr>
+                        <td>
+                            
+                            <a href="{% url 'AdminDashboardFlow:home_parkjob_change' post.id %}">
+                                {{ post.confirmation }}
+                            </a>                            
+                        </td>
+                        <td>
+                            <span class="status-badge status-approved">
+                                {{ post.income_after_tax }}$
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-pending">
+                            {{ post.taxes_owed }}$
+                            </span>
+                        </td>
+                        <td>
+                            {{ post.job_income }}$
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

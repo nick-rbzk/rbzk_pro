@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.utils import timezone
 from .models import *
 from utils.taxes import *
-# Register your models here.
+from rbzk.admin import admin_site
 
-admin.site.register(FormSubmission)
+admin_site.register(FormSubmission)
 
-@admin.register(ParkJob)
+# @admin.register(ParkJob)
 class ParkJobAdmin(admin.ModelAdmin):
     list_display    = ("confirmation", "after_tax", "tax_total", "total", "jb_start", "jb_end")
     list_filter     = ("job_start", "job_end")
@@ -47,7 +47,7 @@ class ParkJobAdmin(admin.ModelAdmin):
     tax_total.short_description = 'Total Tax Owed'  
     
 
-@admin.register(WorkWeek)
+# @admin.register(WorkWeek)
 class WorkWeekAdmin(admin.ModelAdmin):
     list_display    = ("week_start", "week_end", "jobs_time", "week_total", "tax_breakdown", "tax_total")
     list_filter     = ("week_start", "week_end")
@@ -94,4 +94,7 @@ class WorkWeekAdmin(admin.ModelAdmin):
     week_total.short_description = 'Week\'s Total'  
     tax_breakdown.short_description = 'Tax breakdown'  
     tax_total.short_description = 'Total Tax Owed'  
-    
+
+
+admin_site.register(ParkJob, ParkJobAdmin)
+admin_site.register(WorkWeek, WorkWeekAdmin)
