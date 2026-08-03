@@ -8,7 +8,7 @@ admin.site.register(FormSubmission)
 
 @admin.register(ParkJob)
 class ParkJobAdmin(admin.ModelAdmin):
-    list_display    = ("confirmation", "total", "jb_start", "jb_end", "tax_breakdown", "tax_total")
+    list_display    = ("confirmation", "after_tax", "tax_total", "total", "jb_start", "jb_end")
     list_filter     = ("job_start", "job_end")
     search_fields   = ("confirmation", "job_start", "job_end")
 
@@ -27,14 +27,6 @@ class ParkJobAdmin(admin.ModelAdmin):
     def total(self, obj):
         return f"{obj.job_income()}$"
 
-    def tax_breakdown(self, obj):
-        income = float(obj.job_income()) 
-        self_employ_owed = self_employ_tax(income)
-        self_employ_owed =  '{0:.2f}'.format(self_employ_owed)
-        federal_owed = federal_income_tax(income)
-        federal_owed =  '{0:.2f}'.format(federal_owed)
-        return f"Self Employ: {self_employ_owed}$. Federal: {federal_owed}$"
-
     def tax_total(self, obj):
         income = float(obj.job_income()) 
         self_employ_owed = self_employ_tax(income)
@@ -42,9 +34,16 @@ class ParkJobAdmin(admin.ModelAdmin):
         total = self_employ_owed + federal_owed
         total =  '{0:.2f}'.format(total)
         return f"{total}$"
+
+    def after_tax(self, obj):
+        income = float(obj.job_income())
+        self_employ_owed = self_employ_tax(income)
+        federal_owed = federal_income_tax(income)
+        after_tax = income - (self_employ_owed + federal_owed)
+        return '{0:.2f}'.format(after_tax)
     
     total.short_desctioption = "Total Income"
-    tax_breakdown.short_description = 'Tax breakdown'  
+    after_tax.short_description = 'After Tax Income'  
     tax_total.short_description = 'Total Tax Owed'  
     
 
