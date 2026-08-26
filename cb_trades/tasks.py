@@ -120,11 +120,7 @@ def db_record_price():
                 coinbase_date=date,
                 ticker_symbol=key,
             )
-            print("Coin base date", date)
-            print("Price Log", price_log)
-            print("Is Created", created)
             if created:
-                print("New Object")
                 price_log.high_price = Decimal(db_data[key]['high_price'])
                 price_log.low_price = Decimal(db_data[key]['low_price'])
                 set_highs_and_lows.delay()

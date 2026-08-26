@@ -1,4 +1,22 @@
 services:
+  websocket-service:
+    build: ./wbskt_srvs
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - PRODUCT_IDS=BTC-USD,ETH-USD
+      - WEBSOCKET_HEALTH_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - rbzk_network
+
+
   web:
     build:
       context: .
@@ -17,8 +35,15 @@ services:
       - ./environment/.dev
     restart: always
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_started
+      websocket-service:
+        condition: service_started
+    networks:
+      - rbzk_network
+
 
   db:
     image: postgres:15-alpine
@@ -28,9 +53,43 @@ services:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
+    networks:
+      - rbzk_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hello_django -d hello_django"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
   redis:
     image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rbzk_network
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    env_file:
+      - ./environment/.dev
+    networks:
+      - rbzk_network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 
   celery_worker_default:
     build:
@@ -45,6 +104,9 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
 
   celery_worker_high:
     build:
@@ -59,6 +121,9 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
 
   celery_beat:
     build:
@@ -73,6 +138,9 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
 
   flower:
     build:
@@ -89,6 +157,14 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - rbzk_network
+
+networks:
+  rbzk_network:
+    driver: bridge
+
 
 volumes:
   postgres_data:
+  redis_data:

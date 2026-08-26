@@ -18,4 +18,5 @@ urlpatterns = [
     path('', include("home.urls")),
     path('', include("cal_stats.urls")),
     path('', include('cb_mark.urls')),
+    path('trade-dash/', include("cb_page.urls"))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

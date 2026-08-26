@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'error_views',
     'cb_trades',
     'cb_mark',
+    'cb_page',
 ]
 
 
@@ -70,7 +71,55 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django.middleware.gzip.GZipMiddleware",
+    'cb_page.middleware.DisableGZipForSSEMiddleware', 
 ]
+
+
+# Redis settings
+REDIS_HOST = os.environ.get('REDIS_HOST', 'redis')
+REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+REDIS_DB = int(os.environ.get('REDIS_DB', 0))
+
+# For Django Channels (optional - for WebSocket support)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
+}
+
+
+
+# Redis cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get("REDIS_CACHE_LOCATION", "redis://127.0.0.1:6379/1"),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+            'CONNECTION_POOL_CLASS_KWARGS': {
+                'max_connections': 50,
+                'timeout': 20,
+            },
+            'REDIS_CLIENT_KWARGS': {  # Additional kwargs for Redis client
+                'decode_responses': True,  # Optional: return strings instead of bytes
+                'health_check_interval': 30,
+            },
+        },
+        'KEY_PREFIX': 'rbzk',  # Optional: prefix all cache keys
+        'TIMEOUT': 300,  # Optional: default timeout in seconds
+    },
+    'sessions': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/2',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
 
 
@@ -116,34 +165,6 @@ DATABASES = {
 
 
 
-# Redis cache configuration
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ.get("REDIS_CACHE_LOCATION", "redis://127.0.0.1:6379/1"),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
-            'CONNECTION_POOL_CLASS_KWARGS': {
-                'max_connections': 50,
-                'timeout': 20,
-            },
-            'REDIS_CLIENT_KWARGS': {  # Additional kwargs for Redis client
-                'decode_responses': True,  # Optional: return strings instead of bytes
-                'health_check_interval': 30,
-            },
-        },
-        'KEY_PREFIX': 'rbzk',  # Optional: prefix all cache keys
-        'TIMEOUT': 300,  # Optional: default timeout in seconds
-    },
-    'sessions': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://localhost:6379/2',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
 
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 * 2   # 5mb * 2 !
