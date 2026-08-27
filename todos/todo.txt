@@ -1,4 +1,35 @@
 # TODO
+    - Daphne in local setup
+    - fontent ajax to backend backet resubscribe with websockets.
+    - retest the S1
+    - retest the emails
+    - alert for a break out price for custom amount of days
+
+Nice to have
+    - a line with break out events and time period between them for every cripto subscribed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 !! ✅ Cache update last_trade to last_trades object, that stores last trade per product_id
 
