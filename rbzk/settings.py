@@ -259,9 +259,6 @@ WEEK_TIME_END = "23:59"
 
 
 
-# Coinbase websocket related
-
-GLOBAL_WS_TASK_NAME = 'websocket'
 
 # Coinbase websocket task cache Settings
 

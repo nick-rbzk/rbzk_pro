@@ -1,19 +1,12 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
-from rbzk.settings import GLOBAL_WS_TASK_NAME
 from cb_trades.tasks import set_cache_bins
-from emails.tasks import trade_opened_email
 from .models import *
 from .forms import TradingPairForm
 
 
-from emails.tasks import ten_day_event_email
-import time
 @csrf_exempt
 def trading_options(request):   
     set_cache_bins()

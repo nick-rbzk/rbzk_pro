@@ -1,14 +1,9 @@
 import jwt, time, secrets, os, logging, requests, time
-
 from cryptography.hazmat.primitives import serialization
 from decimal import Decimal
 from datetime import datetime
 from cdp.auth.utils.jwt import generate_jwt, JwtOptions
 from celery import shared_task
-from celery.contrib.abortable import AbortableTask
-from rbzk.celery import app
-from wbsockets.public_wbsocket import CoinbaseWebSocketHandlerAdvanced
-from rbzk.settings import GLOBAL_WS_TASK_NAME, BASE_DIR
 from .models import TradingPair, DayPriceLog
 
 logger = logging.getLogger(__name__)
@@ -95,5 +90,5 @@ def setup_initial_trades():
     # check if trade with trading pair already exists 
     # create one only if it does not.
     # the same buy and sell signal
-    
+
     pass
