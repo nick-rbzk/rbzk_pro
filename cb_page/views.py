@@ -11,8 +11,8 @@ from cb_mark.models import TradingPair
 from django.views import View
 from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
-from cb_mark.models import TradingPair, Trade, DayPriceLog, TradeState
-from .redis_pubsub import get_price_subscriber, RedisPriceSubscriber
+from cb_mark.models import TradingPair, Trade, TradeState
+from .redis_pubsub import RedisPriceSubscriber
 from .websocket_client import price_client
 
 logger = logging.getLogger(__name__)
