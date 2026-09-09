@@ -1,11 +1,10 @@
 from datetime import datetime
 from django.contrib import admin
 from django.core.cache import cache
+from emails.models import PriceBreakEmail
 from .models import *
 from rbzk.admin import admin_site
 
-# admin.site.register(WebSocketTask)
-admin_site.register(WebSocketTask)
 
 # @admin.register(TradingPair)
 class TradingPairAdmin(admin.ModelAdmin):
@@ -20,6 +19,7 @@ class TradingPairAdmin(admin.ModelAdmin):
         )
         return d_log.last_price
 admin_site.register(TradingPair, TradingPairAdmin)
+
 
 # @admin.register(DayPriceLog)
 class DayPriceLogAdmin(admin.ModelAdmin):
@@ -47,7 +47,7 @@ admin_site.register(BreakOutSignal, BreakOutSignalAdmin)
 class TradeAdmin(admin.ModelAdmin):
     last_price = None
     currency = ""
-    list_display = ("trade_pair", "state", "type", 
+    list_display = ("trade_pair", 'pk',"state", "type", 
                     "enter_price", "stop_loss_price", 
                     "current_price", "if_sold", "exit_price", "profit_loss", "created_at")
     search_fields = ["pk", "ticker_symbol", "state", "type"]

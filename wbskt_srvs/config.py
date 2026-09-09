@@ -13,5 +13,5 @@ REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
 REDIS_DB = int(os.environ.get("REDIS_DB", 0))
 
 # WebSocket configuration
-PRODUCT_IDS = os.environ.get("PRODUCT_IDS", "BTC-USD,ETH-USD").split(",")
+PRODUCT_IDS = os.environ.get("PRODUCT_IDS", "BTC-USD,XLM-USD").split(",")
 WEBSOCKET_HEALTH_PORT = int(os.environ.get("WEBSOCKET_HEALTH_PORT", 8080))

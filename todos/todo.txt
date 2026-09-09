@@ -1,12 +1,68 @@
 # TODO
-    - Daphne in local setup
-    - fontent ajax to backend backet resubscribe with websockets.
-    - retest the S1
-    - retest the emails
+    - celery task to setup last trades according to trading pairs provided.
+
+
+
+
+    - ✅ Websocket s1_strategy no longer a task. Spawn a task only on the exect breakout.
+        WebSocket Layer: Drops 99.9% of messages. 
+        Spawns a Celery task only on the exact upward break-out.
+
+    - ✅ Celery Task (single queue, concurrency=1 or 2):
+        First, attempts a Redis SET NX EX (fastest, handles milliseconds).
+
+        If Redis succeeds, it performs a final atomic UPDATE in the DB 
+        (for guaranteed persistence) then sends an email
+
+    - Sending the email:
+
+        Idempotency: Ensure your email provider supports a unique Message-ID 
+            or use a dedup key in your email headers so even if a fluke happens, 
+            the email client/SMTP server sees it as a duplicate.
+        Pro-Tip: Since your task queue is dedicated, 
+        set the worker concurrency for that specific queue to --concurrency=1. 
+        This forces sequential processing. Combined with the Redis lock, 
+        this makes a double-send mathematically impossible.
+
+
+
+
+
+
+    - ✅ fontend ajax to backend and backend to resubscribe with websockets.
+    - ✅ front ent tables to display real time prices, highs, lows.
+    - ✅ front end tables to display current trades and prices.
+    - ✅ Connect S1 strategy.
+    - ✅ retest the S1 / highs_and_lows
+    - ✅ retest the emails
+    - ✅ 10 day break email
+
+
+
+
+
+    After Deployment and testing:
+    Aws store files with websocket messages INSTEAD of DB storage
+
+
+
+
+# All of this after Bitrow.com !!!!!
     - alert for a break out price for custom amount of days
 
+    - RETEST TRADE OPENING 
+        by having an array of prices per currency with each price increased, 
+            being the new 20day breakout.
+            with every message from websocket replace price 
+            with gradual increase see how application reacts.
+    
+    - Same for trade closing.
+
+    - Save json from websocket messages to a file and upload to aws at the end of the day.
+    
 Nice to have
-    - a line with break out events and time period between them for every cripto subscribed.
+    - a line with break out events and time period between them for every currency
+        currntly subscribed with web sockets.
 
 
 

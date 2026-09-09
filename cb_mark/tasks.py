@@ -11,7 +11,7 @@ from wbsockets.public_wbsocket import CoinbaseWebSocketHandlerAdvanced
 # from wbsockets.websocket_handler import CoinbaseWebSocketHandler
 # from wbsockets.coinbase_websoket import CoinbaseWebSocketHandler
 from rbzk.settings import GLOBAL_WS_TASK_NAME, BASE_DIR
-from .models import TradingPair, WebSocketTask, DayPriceLog
+from .models import TradingPair, DayPriceLog
 
 logger = logging.getLogger(__name__)
 
@@ -61,15 +61,12 @@ def stop_coinbase_websocket():
         if task_id is not None:
             app.control.revoke(task_id, terminate=True)
     websocket_obj_ids = set(websocket_obj_ids)
-    websockets = WebSocketTask.objects.filter(pk__in=websocket_obj_ids)
-    for w in websockets:
-        w.delete()
     return "Stop WebSocket Task Completed"
 
 
 def build_jwt(ticker_symbol):
-    key_name = os.environ.get("COINBASE_KEY_NAME")
-    private_key = os.environ.get("COINBASE_KEY_SECRET")
+    key_name = os.environ.get("COINBASE_API_KEY")
+    private_key = os.environ.get("COINBASE_API_SECRET")
     if not key_name and not private_key:
         logger.error("Coinbase keys not found")
         return False
@@ -90,10 +87,8 @@ def build_jwt(ticker_symbol):
 
 
 @shared_task(name="low_priority:setup_history_logs")
-def setup_history_logs(days=None):
+def setup_history_logs(days=57, day_offset=-1):
     end_time = int(time.time())
-    if days is None:
-        days = 57
     days = int(days)
     start_time = end_time - (days * 86400)
     granularity = 'ONE_DAY'
@@ -120,7 +115,7 @@ def setup_history_logs(days=None):
                 candles = response.json()["candles"]
                 cs = list(candles)
                 yestarday_close = None
-                for i in range(len(cs)-1, 0, -1):
+                for i in range(len(cs)-1, day_offset, -1):
                     obj = cs[i]
                     date = datetime.fromtimestamp(int(obj["start"]))
                     high_price = Decimal(obj["high"])

@@ -3,4 +3,4 @@
 set -o errexit
 set -o nounset
 
-celery -A rbzk worker -l INFO -Q high_priority
+celery -A rbzk worker -l INFO -Q high_priority --concurrency=1

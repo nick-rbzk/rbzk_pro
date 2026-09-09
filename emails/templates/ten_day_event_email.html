@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CLOSED Trade</title>
+    <title>OPENED Trade</title>
     <style type="text/css">
         /* Client-specific styles */
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -51,7 +51,7 @@
             padding: 20px;
             text-align: center;
             background-color: #005451;
-            color: #ffae00;
+            color: #00efe7;
         }
         
         .content {
@@ -106,48 +106,24 @@
             <!-- HEADER -->
             <tr>
                 <td class="header">
-                    <h1>CLOSED a Trade</h1>
+                    <h1>Opened a New Trade</h1>
                 </td>
             </tr>
             
             <!-- CONTENT -->
             <tr>
                 <td class="content">
-                    <h2>CLOSED {{ trade_type }} Position</h2>
-                    <br>
+                    <h2>10 Day Break Event!!!!</h2>
                     <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Sold : <b>{{ num_shares }}</b> Shares of <b>{{ currency }}</b> @ <b>{{ exit_price }}</b>$/share
+                        {{ product_id }} broke 10 day {{which_10_day}}
                     </p>
-                    <br>
+                    </br>
                     <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Profit from Trade : {{ result }}$
+                        Current Price: <bold>{{current_price}}$</bold>
                     </p>
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Opened on : {{ opened_on }}
-                    </p>
-
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Closed on : {{ closed_on }}
-                    </p>
-
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        How many days trade was opened : {{ days_active }}
-                    </p>
-                    <br>
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Price broke {{ trend_period }}.
-                    </p>
-                    <br>
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Total Spent on Purchase $ : {{ dollar_amount }}$
-                    </p>
-                    <br>
-                    <p style="font-size: 18px; font-weight: bold; text-align: left; padding: 10px; background-color: #f8f8f8; border: 1px dashed #ccc;">
-                        Trade id : {{ trade_id }}
-                    </p>
-
+                    </br>
                     <a target="_blank"
-                        href="{{ domain }}/89ee14c8c7cb465faa10ec1a5e142fd3/coinbase/trade/">
+                        href="{{ domain }}/89ee14c8c7cb465faa10ec1a5e142fd3/cb_mark/trade/">
                         <button class="btn btn-info myButton">
                             Open Trades Panel
                         </button>

@@ -2,7 +2,7 @@ import json
 import websocket
 import logging
 
-from cb_trades.tasks import db_record_price, redis_store_price
+from cb_trades.tasks import db_store_price, redis_store_price
 
 
 logger = logging.getLogger(__name__)

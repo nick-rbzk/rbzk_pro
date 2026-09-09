@@ -10,6 +10,8 @@ import logging
 import redis
 from django.conf import settings
 from django.core.cache import cache
+from cb_trades.tasks import strategy_s1, redis_store_price
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,6 @@ class RedisPriceSubscriber:
     Redis pub/sub subscriber for price updates.
     Can run in background thread or be used with Django Channels.
     """
-    
     def __init__(self, product_id=None):
         self.product_id = product_id
         self.redis_client = None
@@ -44,7 +45,7 @@ class RedisPriceSubscriber:
         if not self.pubsub:
             self.connect()
         
-        channel = channel or f"coinbase:updates:{self.product_id}" if self.product_id else "coinbase:updates:all"
+        channel = "coinbase:updates:all"
         
         # Subscribe to the channel
         self.pubsub.subscribe(**{channel: self._handle_message})
@@ -58,13 +59,15 @@ class RedisPriceSubscriber:
     
     def _handle_message(self, message):
         """Handle incoming Redis message"""
-        # print("----------------Redis Message------------------")
-        # TODO
-        # simply put all celery tasks here.
-        # print(message)
         if message['type'] == 'message':
+
+            data = json.loads(message.get('data'))
+            ticker_data = data.get('price_data')
+
+            # strategy_s1(ticker_data)
+
+            redis_store_price(ticker_data)
             try:
-                data = json.loads(message['data'])
                 # Call all registered callbacks
                 for callback in self.callbacks:
                     try:
@@ -73,6 +76,9 @@ class RedisPriceSubscriber:
                         logger.error(f"Callback error: {e}")
             except json.JSONDecodeError as e:
                 logger.error(f"JSON decode error: {e}")
+
+
+
     
     def start(self, background=True):
         """Start listening for messages"""

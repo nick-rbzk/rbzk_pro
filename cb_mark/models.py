@@ -24,20 +24,13 @@ class SignalType(models.IntegerChoices):
     BYU     = 9
     SELL    = 12
 
-class WebSocketTask(models.Model):
-    task_id         = models.CharField(max_length=256, blank=False, null=True)
-    name            = models.CharField(max_length=1024, blank=False, null=True)
-    stop_requested  = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
 
 
 class TradingPair(models.Model):
     ticker_symbol   = models.CharField(max_length=256, blank=False, null=True)
     name            = models.CharField(max_length=1024, blank=False, null=True)
+    decimal_places  = models.IntegerField(blank=False, null=False, default=2)
     is_active       = models.BooleanField(default=False, blank=False, null=False)
-    running_task    = models.ForeignKey(WebSocketTask,on_delete=models.SET_NULL, null=True, blank=True)
     highest_20day   = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     lowest_20day    = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
     highest_10day   = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
@@ -73,10 +66,6 @@ class DayPriceLog(models.Model):
         return f"{self.ticker_symbol} - ticker messages: {len(self.price_history)}"
 
 
-class Strategy(models.Model):
-    name        = models.CharField(max_length=256, null=False, blank=False)
-    is_active   = models.BooleanField(default=False)
-    
 
 class BreakOutSignal(models.Model):
     signal_type     = models.IntegerField(choices=SignalType, default=TrendPeriod.STOP_LOSS) #Remove a defalut later
@@ -90,6 +79,7 @@ class BreakOutSignal(models.Model):
 
 
 class Trade(models.Model):
+    uid             = models.CharField(max_length=1024, blank=False, null=True)
     trading_pair    = models.ForeignKey(TradingPair, on_delete=models.SET_NULL, null=True, blank=False)
     ticker_symbol   = models.CharField(max_length=1024, blank=True, null=True)
     buy_signal      = models.ForeignKey(BreakOutSignal, on_delete=models.SET_NULL, null=True, blank=False, related_name="open_trades")
@@ -106,7 +96,20 @@ class Trade(models.Model):
     updated_at      = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.state} - {self.type}"
+        state = ''
+        trade_type = ''
+        if self.state == TradeState.OPEN:
+            state = "OPEN"
+        else:
+            state = "CLOSED"
+
+        if self.type == TradeType.SHORT:
+            trade_type = "SHORT"
+
+        if self.type == TradeType.LONG:
+            trade_type = "LONG"
+
+        return f"TRADE: {state} - ID: {self.pk} - Diretion: {trade_type}"
 
 def assign_trading_pair(sender, instance, *args, **kwargs):
     if instance.trading_pair == None:

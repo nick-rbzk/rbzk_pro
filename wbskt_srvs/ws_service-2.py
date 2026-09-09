@@ -258,23 +258,14 @@ class HealthHandler(BaseHTTPRequestHandler):
         # Signal the handler to resubscribe
         handler = service_state.handler
         if handler and hasattr(handler, 'resubscribe'):
-            # Non-blocking call to resubscribe using thread-safe approach
+            # Non-blocking call to resubscribe
             def do_resubscribe():
                 try:
-                    # Get the handler's event loop if available
-                    if hasattr(handler, '_loop') and handler._loop is not None:
-                        loop = handler._loop
-                        # Schedule the resubscribe on the handler's loop
-                        asyncio.run_coroutine_threadsafe(
-                            handler.resubscribe(products),
-                            loop
-                        )
-                    else:
-                        # Fallback: create a new loop
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-                        loop.run_until_complete(handler.resubscribe(products))
-                        loop.close()
+                    # Create a new event loop in this thread
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(handler.resubscribe(products))
+                    loop.close()
                 except Exception as e:
                     logger.error(f"Resubscribe failed: {e}")
             
@@ -308,8 +299,6 @@ class CoinbaseWebSocketHandlerAdvanced:
         self._lock = threading.RLock()
         self._connection_attempts = 0
         self._max_connection_attempts = 10
-        self._loop = None  # Store the loop where websocket was created
-        self._resubscribe_task = None  # Track resubscribe task
         
     async def connect(self):
         """Async connection with proper compression headers"""
@@ -346,18 +335,14 @@ class CoinbaseWebSocketHandlerAdvanced:
                 max_queue=32
             )
             
-            # Store the loop where websocket was created
-            self._loop = asyncio.get_running_loop()
-            
             logger.info(f"Connected to Coinbase with compression enabled")
-            self._connection_attempts = 0
+            self._connection_attempts = 0  # Reset attempts on successful connection
             await self._send_subscription()
             return True
             
         except Exception as e:
             logger.error(f"Failed to connect to Coinbase: {e}")
             self.websocket = None
-            self._loop = None
             self._connection_attempts += 1
             
             if self._connection_attempts >= self._max_connection_attempts:
@@ -408,28 +393,9 @@ class CoinbaseWebSocketHandlerAdvanced:
             # Force reconnection to apply new subscription
             if self.websocket:
                 try:
-                    # Use the websocket's own loop for closing if available
-                    if hasattr(self.websocket, '_loop') and self.websocket._loop is not None:
-                        loop = self.websocket._loop
-                        # Schedule close on the websocket's loop
-                        close_task = asyncio.run_coroutine_threadsafe(
-                            self.websocket.close(code=1000, reason="Resubscribing"),
-                            loop
-                        )
-                        try:
-                            close_task.result(timeout=5)
-                        except TimeoutError:
-                            logger.warning("Close timeout during resubscribe")
-                        except Exception as e:
-                            logger.warning(f"Error closing websocket for resubscribe: {e}")
-                    else:
-                        # Fallback: close directly
-                        await self.websocket.close(code=1000, reason="Resubscribing")
+                    await self.websocket.close(code=1000, reason="Resubscribing")
                 except Exception as e:
                     logger.warning(f"Error closing websocket for resubscribe: {e}")
-                
-                self.websocket = None
-                self._loop = None
     
     def publish_price(self, product_id: str, price_data: dict):
         """Publish price update to Redis with optimized pipeline"""
@@ -477,13 +443,12 @@ class CoinbaseWebSocketHandlerAdvanced:
                         try:
                             await self.websocket.close()
                             self.websocket = None
-                            self._loop = None
                         except:
                             pass
                     # Wait a moment before reconnecting
                     await asyncio.sleep(1)
                 
-                # Ensure websocket is connected before entering message loop
+                # ✅ Ensure websocket is connected before entering message loop
                 if not self.websocket:
                     logger.info("Connecting to WebSocket...")
                     connected = await self.connect()
@@ -492,13 +457,13 @@ class CoinbaseWebSocketHandlerAdvanced:
                         await asyncio.sleep(self.reconnect_delay)
                         continue
                 
-                # Check again if websocket is None before async for
+                # ✅ Check again if websocket is None before async for
                 if not self.websocket:
                     logger.warning("WebSocket is None, skipping message loop")
                     await asyncio.sleep(self.reconnect_delay)
                     continue
                 
-                # Process messages only if websocket exists
+                # ✅ Process messages only if websocket exists
                 async for message in self.websocket:
                     # Handle pong responses
                     try:
@@ -519,14 +484,12 @@ class CoinbaseWebSocketHandlerAdvanced:
             except websockets.ConnectionClosed as e:
                 logger.warning(f"Connection closed: {e}. Reconnecting...")
                 self.websocket = None
-                self._loop = None
                 if self.running:
                     await asyncio.sleep(self.reconnect_delay)
                     
             except Exception as e:
                 logger.error(f"WebSocket error: {e}")
                 self.websocket = None
-                self._loop = None
                 if self.running:
                     await asyncio.sleep(self.reconnect_delay)
     
@@ -534,6 +497,7 @@ class CoinbaseWebSocketHandlerAdvanced:
         """Process incoming message and publish to Redis"""
         try:
             data = json.loads(message)
+            
             # Handle ticker messages (from channel format)
             if data.get('type') == 'ticker':
                 product_id = data.get('product_id')
@@ -572,7 +536,7 @@ class CoinbaseWebSocketHandlerAdvanced:
             loop.close()
         
     def stop(self):
-        """Stop the WebSocket connection safely with proper event loop handling"""
+        """Stop the WebSocket connection"""
         logger.info("Stopping WebSocket connection...")
         self.running = False
         service_state.running = False
@@ -580,61 +544,19 @@ class CoinbaseWebSocketHandlerAdvanced:
         
         if self.websocket:
             try:
-                # Get the websocket's loop if available
-                if hasattr(self.websocket, '_loop') and self.websocket._loop is not None:
-                    loop = self.websocket._loop
-                else:
-                    # Try to get current loop
-                    try:
-                        loop = asyncio.get_running_loop()
-                    except RuntimeError:
-                        # No running loop, create a new one
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-                
-                # Create a task to close the websocket
-                close_task = asyncio.run_coroutine_threadsafe(
-                    self._close_websocket_safely(),
-                    loop
-                )
-                
-                # Wait for the close to complete with timeout
                 try:
-                    close_task.result(timeout=5)
-                    logger.info("WebSocket closed successfully")
-                except TimeoutError:
-                    logger.warning("WebSocket close timed out, forcing closure")
-                    self.websocket = None
-                except Exception as e:
-                    logger.error(f"Error during websocket close: {e}")
-                    self.websocket = None
-                    
+                    loop = asyncio.get_event_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                
+                if loop.is_running():
+                    asyncio.create_task(self.websocket.close())
+                else:
+                    loop.run_until_complete(self.websocket.close())
             except Exception as e:
                 logger.error(f"Error closing websocket: {e}")
-                self.websocket = None
-        
-        # Final cleanup
-        self.websocket = None
-        self._loop = None
-        logger.info("WebSocket stop complete")
-    
-    async def _close_websocket_safely(self):
-        """Safely close the websocket connection"""
-        if not self.websocket:
-            return
-        
-        try:
-            # Send close frame with proper code
-            await self.websocket.close(code=1000, reason="Normal closure")
-            logger.info("WebSocket closed gracefully")
-        except Exception as e:
-            logger.warning(f"Error during websocket close: {e}")
-            # Try to close without handshake
-            if self.websocket:
-                try:
-                    await self.websocket.close()
-                except:
-                    pass
+
 
 
 class CoinbaseWebSocketService:

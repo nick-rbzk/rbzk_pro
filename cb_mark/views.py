@@ -13,7 +13,8 @@ from .models import *
 from .forms import TradingPairForm
 
 
-
+from emails.tasks import ten_day_event_email
+import time
 @csrf_exempt
 def trading_options(request):   
     set_cache_bins()
@@ -37,19 +38,12 @@ def trading_options(request):
                 action = pairs_form.cleaned_data.get('action')
                 if action == '1':
                     if len(pair_ids) > 0:
-                        task = run_coinbase_websocket.delay(pair_ids)
-                        active_task = WebSocketTask.objects.create(
-                            task_id=task.id,
-                            name=f"{GLOBAL_WS_TASK_NAME}:{pair_ids}",
-                        )
                         pairs_q = TradingPair.objects.filter(pk__in=pair_ids)
                         for pair in pairs_q:
                             pair.is_active = True
-                            pair.running_task = active_task
                             pair.save()
                 
                 if action == '0':
-                    stop_coinbase_websocket.delay()
                     return redirect("admin:index")
             else:
                 print(pairs_form.errors) 
