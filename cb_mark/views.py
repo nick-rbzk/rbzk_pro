@@ -8,7 +8,6 @@ from django.core.cache import cache
 from rbzk.settings import GLOBAL_WS_TASK_NAME
 from cb_trades.tasks import set_cache_bins
 from emails.tasks import trade_opened_email
-from .tasks import run_coinbase_websocket, stop_coinbase_websocket
 from .models import *
 from .forms import TradingPairForm
 

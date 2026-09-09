@@ -1,5 +1,6 @@
 # TODO
-    - celery task to setup last trades according to trading pairs provided.
+    - celery task to setup last trades (initial trades) according to trading pairs provided.
+    - front end Closed Trades beter decimal formatting.
 
 
 
