@@ -2,7 +2,6 @@ import jwt, time, secrets, os, logging, requests, time
 from cryptography.hazmat.primitives import serialization
 from decimal import Decimal
 from datetime import datetime
-from cdp.auth.utils.jwt import generate_jwt, JwtOptions
 from celery import shared_task
 from .models import TradingPair, DayPriceLog
 
