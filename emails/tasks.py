@@ -13,6 +13,7 @@ from cb_trades.cache_utils import cache_get_last_trade
 
 logger = logging.getLogger(__name__)
 
+DOMAIN = os.environ.get("DOMAIN")
 
 @shared_task(name='low_priority:open_trade_email')
 def trade_opened_email(trade_uid, trading_pair, *args, **kwargs):
@@ -42,7 +43,8 @@ def trade_opened_email(trade_uid, trading_pair, *args, **kwargs):
     context["stop_loss_price"] = '{0:.2f}'.format(trade.stop_loss_price)
     context["dollar_amount"] = '{0:.2f}'.format(trade.dollar_amount)
     context["num_shares"] = '{0:.5f}'.format(trade.num_shares)
-
+    context["domain"] = DOMAIN
+    
     if trade.buy_signal.trend_period == TrendPeriod.FIFTYFIVE:
         if trade.type == TradeType.SHORT:
             context["trend_period"] = "55 day LOW"
@@ -130,6 +132,7 @@ def trade_closed_email(trade_uid, trading_pair, *args, **kwargs):
     context["stop_loss_price"] = trade.stop_loss_price
     context["dollar_amount"] = trade.dollar_amount
     context["num_shares"] = '{0:.5f}'.format(trade.num_shares)
+    context["domain"] = DOMAIN
 
     
     if trade.sell_signal.trend_period == TrendPeriod.TWENTY:
@@ -165,6 +168,8 @@ def trade_closed_email(trade_uid, trading_pair, *args, **kwargs):
     except Exception as e:
         logger.error("Sending email about deletion failed: %s", e)
 
+
+
 from .models import PriceBreakEmail, BreakPeriod
 @shared_task(name="low_priority:ten_day_event_email")
 def ten_day_event_email(product_id, current_price, which_10_day):
@@ -190,6 +195,7 @@ def ten_day_event_email(product_id, current_price, which_10_day):
     context["product_id"] = product_id
     context["which_10_day"] = which_10_day
     context["current_price"] = current_price
+    context["domain"] = DOMAIN
     html_template = render_to_string(
         os.path.join(settings.BASE_DIR, 'emails/templates/ten_day_event_email.html'), 
         context
