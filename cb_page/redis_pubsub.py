@@ -64,7 +64,7 @@ class RedisPriceSubscriber:
             data = json.loads(message.get('data'))
             ticker_data = data.get('price_data')
 
-            # strategy_s1(ticker_data)
+            strategy_s1(ticker_data)
 
             redis_store_price(ticker_data)
             try:
