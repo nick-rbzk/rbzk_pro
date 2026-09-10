@@ -331,14 +331,12 @@ def strategy_s1(ticker_data, *args, **kwargs):
     # My own preferance
     if current_price > highest_10day:
         if not lock_aquired('HIGH_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info(f"Alert already sent today. Skipping email.")
-            return f"EmailAlert with id:{last_trade.get("uid")} has already been sent"
+            logger.info(f"EmailAlert with id:{last_trade.get("uid")} has already been sent")
         else:
             ten_day_event_email.delay(product_id, current_price, 'HIGH')
     if current_price < lowest_10day:
         if not lock_aquired('LOW_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info(f"Alert already sent today. Skipping email.")
-            return f"EmailAlert with id:{last_trade.get("uid")} has already been sent"
+            logger.info(f"EmailAlert with id:{last_trade.get("uid")} has already been sent")
         else:
             ten_day_event_email.delay(product_id, current_price, 'LOW')
 
