@@ -23,14 +23,11 @@ admin_site.register(TradingPair, TradingPairAdmin)
 
 # @admin.register(DayPriceLog)
 class DayPriceLogAdmin(admin.ModelAdmin):
-    list_display = ('ticker_symbol', "high_price", "low_price", "spread",'last_price', 'n_atr', 'coinbase_date', "num_messages","updated_at")
+    list_display = ('ticker_symbol', "high_price", "low_price", "spread",'last_price', 'n_atr', 'coinbase_date', "updated_at")
     exclude = ('price_history',)
     search_fields = ('ticker_symbol', "created_at",) 
     # list_filter = ("created_at",)
 
-    def num_messages(self, obj):
-        return len(obj.price_history)
-    
     def spread(self, obj):
         if obj.high_price and obj.low_price:
             return obj.high_price - obj.low_price
