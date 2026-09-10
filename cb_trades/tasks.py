@@ -122,8 +122,8 @@ def db_store_price():
             if created:
                 price_log.high_price = Decimal(db_data[key]['high_price'])
                 price_log.low_price = Decimal(db_data[key]['low_price'])
+                price_log.open_price = Decimal(db_data[key]['open_24h'])
                 set_highs_and_lows.delay()
-            price_log.open_price = Decimal(db_data[key]['open_24h'])
             message_store = db_data[key]["message_q"] 
             for message in message_store:
                 price_data = {}
