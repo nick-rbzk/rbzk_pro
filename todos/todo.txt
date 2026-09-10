@@ -1,6 +1,7 @@
 # TODO
-    - celery task to setup last trades (initial trades) according to trading pairs provided.
-    - front end Closed Trades beter decimal formatting.
+    - ✅ celery task to setup last trades (initial trades) according to trading pairs provided.
+    - ✅ front end Closed Trades beter decimal formatting.
+    - ✅ change address in a 10 day email to mkla.rbzk@gamil.com
 
 
 
