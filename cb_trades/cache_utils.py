@@ -2,7 +2,7 @@ import logging, secrets
 from django.core.cache import cache
 from rbzk.settings import CACHE_TRADES_BIN_NAME, TRADES_CACHE_TIMEOUT, \
     CACHE_BIN_TIMEOUT, CACHE_BIN_STORAGE_KEYS, CACHE_BIN_KEYS
-from cb_mark.models import TradingPair, Trade
+from cb_mark.models import TradingPair, Trade, TrendPeriod
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +42,23 @@ def cache_set_last_trades():
             last_db_trade = Trade.objects.filter(
                 ticker_symbol=p.ticker_symbol
                 ).order_by("created_at").last()
-            last_trade = create_trade_draft(
-                last_db_trade.state, 
-                last_db_trade.type,
-                last_db_trade.buy_signal.trend_period
-            )
+            if last_db_trade.buy_signal is not None and hasattr(last_db_trade.buy_signal, 'trend_period'):
+                last_trade = create_trade_draft(
+                    last_db_trade.state, 
+                    last_db_trade.type,
+                    last_db_trade.buy_signal.trend_period
+                )
+            else:
+                last_trade = create_trade_draft(
+                    last_db_trade.state, 
+                    last_db_trade.type,
+                    TrendPeriod.STOP_LOSS
+                )
             last_trade.update({
                 'uid': last_db_trade.uid,
                 'stop_loss_price': last_db_trade.stop_loss_price,
                 'profit_loss': last_db_trade.profit_loss
                 })
-            print(last_trade)
             last_trades[p.ticker_symbol] = {"last_trade": last_trade}
         cache.set(CACHE_TRADES_BIN_NAME, last_trades, TRADES_CACHE_TIMEOUT)
         return True
@@ -61,6 +67,8 @@ def cache_set_last_trades():
 
 
 def cache_update_last_trades(last_trade, ticker_symbol):
+    print("Trade to update", last_trade)
+    print("TickerSymbol", ticker_symbol)
     if isinstance(last_trade, dict) and ticker_symbol is not None:
         last_trades = cache.get(CACHE_TRADES_BIN_NAME)
         if last_trades is not None:
