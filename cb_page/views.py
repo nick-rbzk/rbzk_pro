@@ -111,7 +111,9 @@ class TradingDashboardView(TemplateView):
         context['trading_pairs'] = TradingPair.objects.filter(is_active=True)
         context['open_trades'] = Trade.objects.filter(state=TradeState.OPEN)
 
-        closed_trades = Trade.objects.filter(state=TradeState.CLOSED)
+        closed_trades = Trade.objects.filter(
+            state=TradeState.CLOSED
+        ).exclude(buy_signal=None, sell_signal=None)
         formated_closed_trades = []
         for trade in closed_trades:
             formated_trade = {
