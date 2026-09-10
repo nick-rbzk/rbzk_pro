@@ -198,7 +198,7 @@ def ten_day_event_email(product_id, current_price, which_10_day):
     plain_message = f"{product_id} price borke 10 day {which_10_day} at {current_price}$"
     html_message = html_template
     from_email = "info@webvision.ltd"
-    recipient_list = ['info@webvision.ltd',]
+    recipient_list = ['info@webvision.ltd','mkla.rbzk@gmail.com']
 
     error = False
     try:
