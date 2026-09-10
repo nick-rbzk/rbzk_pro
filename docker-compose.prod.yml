@@ -15,6 +15,24 @@ services:
     networks:
       - rbzk_network
 
+
+  websocket-service:
+    build: ./wbskt_srvs
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - WEBSOCKET_HEALTH_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - rbzk_network
+
+      
   web:
     build:
       context: .
