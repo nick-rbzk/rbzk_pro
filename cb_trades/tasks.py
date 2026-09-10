@@ -1,4 +1,4 @@
-import json, logging, secrets
+import json, logging
 
 from decimal import Decimal
 from datetime import datetime, timezone, timedelta
@@ -280,14 +280,6 @@ def lock_aquired(commit_action, trading_pair ,trade_id, lock_for_hours=1) -> boo
 
 # @shared_task(name='high_priority:strategy_s1', reject_on_worker_lost=False)
 def strategy_s1(ticker_data, *args, **kwargs):
-    # ticker_data = json.loads(data.get('data')).get("price_data")
-    # ticker_data = data
-    # print("--------------------S1 DATA----------------")
-    # # print(ticker_data)
-    # print(ticker_data.get('price'))
-    # print(ticker_data.get('product_id'))
-
-    # print("--------------------S1 DATA----------------")
 
     # For testing purposes only
     # ticker_data = {'time_received': '2026-08-29 21:56:03.229677', 
@@ -324,10 +316,6 @@ def strategy_s1(ticker_data, *args, **kwargs):
     current_price   = Decimal(ticker_data.get('price'))
     product_id      = ticker_data.get('product_id')
     last_trade      = cache_get_last_trade(product_id)
-    # print("------------------------Last Trade -------------------------------")
-    # print(product_id)
-    # print(last_trade)
-    # print("------------------------Last Trade -------------------------------")
     if not isinstance(last_trade, dict) or last_trade is None:
         # most def needs to be redone
         last_trade = Trade.objects.filter(ticker_symbol=product_id).order_by("created_at").last()
