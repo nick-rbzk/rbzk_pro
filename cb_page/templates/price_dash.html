@@ -607,17 +607,17 @@
                                     </span>                                        
                                 {% endif %}
                                 </td>
-                                <td>{{ ct.enter_price }}</td>
-                                <td>{{ ct.stop_loss_price }}</td>
-                                <td>{{ ct.exit_price  }}</td>
+                                <td>{{ ct.enter_price }}$</td>
+                                <td>{{ ct.stop_loss_price }}$</td>
+                                <td>{{ ct.exit_price  }}$</td>
                                 {% if ct.profit_loss > 0 %}
-                                    <td class="profit-positive">{{ ct.profit_loss }}</td>
+                                    <td class="profit-positive">{{ ct.profit_loss }}$</td>
                                 {% endif %}
                                 {% if ct.profit_loss < 0 %}
-                                    <td class="profit-negative">{{ ct.profit_loss }}</td>
+                                    <td class="profit-negative">{{ ct.profit_loss }}$</td>
                                 {% endif %}
                                 {% if ct.profit_loss == 0 %}
-                                    <td class="profit-zero">{{ ct.profit_loss }}</td>
+                                    <td class="profit-zero">{{ ct.profit_loss }}$</td>
                                 {% endif %}
                                 <td>{{ ct.created_at }}</td>
                             </tr>

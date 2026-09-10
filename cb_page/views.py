@@ -109,8 +109,22 @@ class TradingDashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['trading_pairs'] = TradingPair.objects.filter(is_active=True)
-        context['open_trades'] = Trade.objects.filter(state=TradeState.OPEN)  # Open trades
-        context['closed_trades'] = Trade.objects.filter(state=TradeState.CLOSED)  # Closed trades
+        context['open_trades'] = Trade.objects.filter(state=TradeState.OPEN)
+
+        closed_trades = Trade.objects.filter(state=TradeState.CLOSED)
+        formated_closed_trades = []
+        for trade in closed_trades:
+            formated_trade = {
+                'ticker_symbol': trade.ticker_symbol,
+                'type': trade.type,
+                'enter_price': round(trade.enter_price, trade.trading_pair.decimal_places) if trade.stop_loss_price else 0,
+                'stop_loss_price': round(trade.stop_loss_price, trade.trading_pair.decimal_places) if trade.stop_loss_price else 0,
+                'exit_price': round(trade.exit_price, trade.trading_pair.decimal_places) if trade.stop_loss_price else 0,
+                'profit_loss': round(trade.profit_loss, trade.trading_pair.decimal_places) if trade.stop_loss_price else 0,
+                'created_at': trade.created_at,
+            }
+            formated_closed_trades.append(formated_trade)
+        context['closed_trades'] = formated_closed_trades
         return context
 
 
