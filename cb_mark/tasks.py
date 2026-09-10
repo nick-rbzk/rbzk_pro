@@ -3,7 +3,7 @@ from cryptography.hazmat.primitives import serialization
 from decimal import Decimal
 from datetime import datetime
 from celery import shared_task
-from .models import TradingPair, DayPriceLog
+from .models import TradingPair, DayPriceLog, Trade, TradeState, TradeType
 
 logger = logging.getLogger(__name__)
 
@@ -83,11 +83,22 @@ def setup_history_logs(days=57, day_offset=-1):
             time.sleep(0.5)
 
 
-@shared_task(name="low_priority:setup_history_logs")
+@shared_task(name="low_priority:setup_initial_trades")
 def setup_initial_trades():
-    # Sets up trades according to existin TradingPairs
-    # check if trade with trading pair already exists 
-    # create one only if it does not.
-    # the same buy and sell signal
-
-    pass
+    trading_pairs = TradingPair.objects.all()
+    for tp in trading_pairs:
+        if len(tp.trade_set.all()) == 0:
+            trade = Trade.objects.create(
+                    uid=str(secrets.randbelow(9999)),
+                    state=TradeState.CLOSED,
+                    ticker_symbol=tp.ticker_symbol,
+                    type=TradeType.LONG,
+                    enter_price=-1,
+                    stop_loss_price=-1,
+                    exit_price=-1, 
+                    profit_loss=-1,   
+                    dollar_amount=2000,  
+                    num_shares=-1, 
+            )
+            trade.save()
+            tp.trade_set.add(trade)
