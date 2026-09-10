@@ -792,7 +792,7 @@
     }
 
     function setupWebSocket() {
-        const eventSource = new EventSource('http://localhost:8010/trade-dash/api/stream/');
+        const eventSource = new EventSource('{{domain}}/trade-dash/api/stream/');
         
         eventSource.onopen = function() {
             updateStatus('connected');

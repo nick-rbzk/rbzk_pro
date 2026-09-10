@@ -3,7 +3,7 @@ Django views for real-time price updates using Redis pub/sub.
 Supports Server-Sent Events (SSE) and WebSocket streaming.
 """
 
-import json, time, logging, asyncio, requests
+import json, time, logging, asyncio, requests, os
 from django.http import JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from asgiref.sync import sync_to_async
@@ -18,6 +18,7 @@ from .websocket_client import price_client
 
 logger = logging.getLogger(__name__)
 
+DOMAIN = os.environ.get("DOMAIN")
 
 @csrf_exempt
 async def subscribe_to_updates(request, product_id=None):
@@ -128,6 +129,7 @@ class TradingDashboardView(TemplateView):
             }
             formated_closed_trades.append(formated_trade)
         context['closed_trades'] = formated_closed_trades
+        context['domain'] = DOMAIN
         return context
 
 
