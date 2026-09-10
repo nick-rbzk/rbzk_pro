@@ -11,6 +11,7 @@ from cb_mark.models import TradingPair
 from django.views import View
 from django.views.generic import TemplateView
 from django.utils.decorators import method_decorator
+from django.db.models import Q
 from cb_mark.models import TradingPair, Trade, TradeState
 from .redis_pubsub import RedisPriceSubscriber
 from .websocket_client import price_client
@@ -111,9 +112,9 @@ class TradingDashboardView(TemplateView):
         context['trading_pairs'] = TradingPair.objects.filter(is_active=True)
         context['open_trades'] = Trade.objects.filter(state=TradeState.OPEN)
 
-        closed_trades = Trade.objects.filter(
-            state=TradeState.CLOSED
-        ).exclude(buy_signal=None, sell_signal=None)
+        closed_trades = Trade.objects.filter(state=TradeState.CLOSED).exclude(
+            Q(buy_signal=None) & Q(sell_signal=None)
+        )
         formated_closed_trades = []
         for trade in closed_trades:
             formated_trade = {
