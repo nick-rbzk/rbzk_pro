@@ -184,7 +184,14 @@ def task_cache_set_last_trades():
 def open_trade(ticker_data, new_last_trade):
     db_trade = None
     trading_pair = ticker_data.get("product_id")
-    price_log = DayPriceLog.objects.get(coinbase_date=datetime.now(), ticker_symbol=trading_pair)
+    try:
+        price_log = DayPriceLog.objects.get(
+            coinbase_date=datetime.now(), 
+            ticker_symbol=trading_pair
+        )
+    except ObjectDoesNotExist as e:
+        db_store_price.delay()
+        return False
     break_out_signal = BreakOutSignal.objects.create(
         ticker_symbol = trading_pair,
         break_out_price = Decimal(ticker_data.get('price')),
@@ -344,7 +351,6 @@ def strategy_s1(ticker_data, *args, **kwargs):
 
         # stop Loss mitigation
         if isinstance(last_trade.get('stop_loss_price'), Decimal):
-            logger.info("--------------STOP LOSS---------------")
             if last_trade.get('type') == TradeType.SHORT:
                 if current_price >= last_trade.get('stop_loss_price'):
                     if not lock_aquired('STOP_LOSS_SHORT_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
