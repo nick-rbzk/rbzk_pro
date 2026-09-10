@@ -21,8 +21,9 @@ class TrendPeriod(models.IntegerChoices):
     FIFTYFIVE   = 55
 
 class SignalType(models.IntegerChoices):
-    BYU     = 9
-    SELL    = 12
+    STOP_LOSS   = -1
+    BYU         = 9
+    SELL        = 12
 
 
 
@@ -68,7 +69,7 @@ class DayPriceLog(models.Model):
 
 
 class BreakOutSignal(models.Model):
-    signal_type     = models.IntegerField(choices=SignalType, default=TrendPeriod.STOP_LOSS) #Remove a defalut later
+    signal_type     = models.IntegerField(choices=SignalType, default=SignalType.STOP_LOSS) #Remove a defalut later
     trading_pair    = models.ForeignKey(TradingPair, on_delete=models.SET_NULL, null=True, blank=False)
     ticker_symbol   = models.CharField(max_length=1024, blank=True, null=True)
     break_out_price = models.DecimalField(max_digits=24, decimal_places=12, null=True, blank=True)
