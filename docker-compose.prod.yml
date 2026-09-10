@@ -46,11 +46,17 @@ services:
       - mediafiles:/rbzk/mediafiles
     env_file:
       - ./environment/.prod
+    restart: always
     depends_on:
-      - redis
-      - db
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_started
+      websocket-service:
+        condition: service_started
     networks:
       - rbzk_network
+
 
   db:
     image: postgres:15-alpine
@@ -71,13 +77,18 @@ services:
 
   redis:
     image: redis:7-alpine
-    networks:
-      - rbzk_network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 5
+    networks:
+      - rbzk_network
 
 
   rabbitmq:
@@ -178,6 +189,7 @@ services:
     networks:
       - rbzk_network
 
+
 networks:
   rbzk_network:
     driver: bridge
@@ -185,6 +197,7 @@ networks:
 
 volumes:
   postgresData:
+  redis_data:
   flower_db:
   staticfiles:
   mediafiles:
