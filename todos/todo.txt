@@ -1,52 +1,25 @@
 # TODO
-    - ✅ celery task to setup last trades (initial trades) according to trading pairs provided.
-    - ✅ front end Closed Trades beter decimal formatting.
-    - ✅ change address in a 10 day email to mkla.rbzk@gamil.com
 
-
-
-
-    - ✅ Websocket s1_strategy no longer a task. Spawn a task only on the exect breakout.
-        WebSocket Layer: Drops 99.9% of messages. 
-        Spawns a Celery task only on the exact upward break-out.
-
-    - ✅ Celery Task (single queue, concurrency=1 or 2):
-        First, attempts a Redis SET NX EX (fastest, handles milliseconds).
-
-        If Redis succeeds, it performs a final atomic UPDATE in the DB 
-        (for guaranteed persistence) then sends an email
-
-    - Sending the email:
-
-        Idempotency: Ensure your email provider supports a unique Message-ID 
-            or use a dedup key in your email headers so even if a fluke happens, 
-            the email client/SMTP server sees it as a duplicate.
-        Pro-Tip: Since your task queue is dedicated, 
-        set the worker concurrency for that specific queue to --concurrency=1. 
-        This forces sequential processing. Combined with the Redis lock, 
-        this makes a double-send mathematically impossible.
-
-
-
-
-
-
-    - ✅ fontend ajax to backend and backend to resubscribe with websockets.
-    - ✅ front ent tables to display real time prices, highs, lows.
-    - ✅ front end tables to display current trades and prices.
-    - ✅ Connect S1 strategy.
-    - ✅ retest the S1 / highs_and_lows
-    - ✅ retest the emails
-    - ✅ 10 day break email
-
-
-
-
-
-    After Deployment and testing:
+After Deployment and testing:
     Aws store files with websocket messages INSTEAD of DB storage
 
 
+
+When switching do AMD from Amper
+    postgres_data should be a docker volume
+    Script to export all WorkWeek and ParkJob models. Preserve relations
+
+
+
+- Sending the email:
+
+    Idempotency: Ensure your email provider supports a unique Message-ID 
+        or use a dedup key in your email headers so even if a fluke happens, 
+        the email client/SMTP server sees it as a duplicate.
+    Pro-Tip: Since your task queue is dedicated, 
+    set the worker concurrency for that specific queue to --concurrency=1. 
+    This forces sequential processing. Combined with the Redis lock, 
+    this makes a double-send mathematically impossible.
 
 
 # All of this after Bitrow.com !!!!!
@@ -58,9 +31,10 @@
             with every message from websocket replace price 
             with gradual increase see how application reacts.
     
-    - Same for trade closing.
+    - Css gauges that takes in 10_day, 20_day and 55_day highs and lows
+        and arranges both on each side of the gauge starting with the highest to lowest.
+    - Css Gauge must be animated and reflect price changes per ticker_symbol.
 
-    - Save json from websocket messages to a file and upload to aws at the end of the day.
     
 Nice to have
     - a line with break out events and time period between them for every currency
@@ -73,20 +47,29 @@ Nice to have
 
 
 
+    - ✅ celery task to setup last trades (initial trades) according to trading pairs provided.
+    - ✅ front end Closed Trades beter decimal formatting.
+    - ✅ change address in a 10 day email to mkla.rbzk@gamil.com
 
 
+    - ✅ Websocket s1_strategy no longer a task. Spawn a task only on the exect breakout.
+        WebSocket Layer: Drops 99.9% of messages. 
+        Spawns a Celery task only on the exact upward break-out.
+
+    - ✅ Celery Task (single queue, concurrency=1 or 2):
+        First, attempts a Redis SET NX EX (fastest, handles milliseconds).
+
+        If Redis succeeds, it performs a final atomic UPDATE in the DB 
+        (for guaranteed persistence) then sends an email
 
 
-
-
-
-
-
-
-
-
-
-
+    - ✅ fontend ajax to backend and backend to resubscribe with websockets.
+    - ✅ front ent tables to display real time prices, highs, lows.
+    - ✅ front end tables to display current trades and prices.
+    - ✅ Connect S1 strategy.
+    - ✅ retest the S1 / highs_and_lows
+    - ✅ retest the emails
+    - ✅ 10 day break email
 
 
 !! ✅ Cache update last_trade to last_trades object, that stores last trade per product_id
