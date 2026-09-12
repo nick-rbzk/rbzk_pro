@@ -1,16 +1,5 @@
 # TODO
 
-
-
-Analyze my websocket setup.
-Optimize all code to prevent ram consumption growth over a long periods of running time.
-Consider that i need strategy_s1 function and redis store price function to run for every product_id that is subscribed to
-I will include file by file all code related do the websockets, cache storage and more.
-Provide fully generated files with all related imports.
-Provide explanation.
-
-
-
 After Deployment and testing:
     Aws store files with websocket messages INSTEAD of DB storage
 
