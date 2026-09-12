@@ -3,5 +3,6 @@ postgres_data/
 postgresData/
 staticfiles/
 compose/production/nginx/certs
+temp_uploads/
 .vscode
 cb_keys
