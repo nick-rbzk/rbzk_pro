@@ -221,93 +221,26 @@ class RedisPriceSubscriber:
         with self._callbacks_lock:
             self._callbacks.append(ref)
         return self
+    
+    def _handle_message(self, message):
+        """Handle incoming Redis message"""
+        if message['type'] == 'message':
 
-    def remove_callback(self, callback: Callable[[dict], None]
-                        ) -> "RedisPriceSubscriber":
-        with self._callbacks_lock:
-            self._callbacks = [
-                ref for ref in self._callbacks
-                if (cb := ref()) is not None and cb is not callback
-            ]
-        return self
+            data = json.loads(message.get('data'))
+            ticker_data = data.get('price_data')
 
-    @staticmethod
-    def _make_weak_ref(callback):
-        try:
-            return weakref.WeakMethod(callback)
-        except TypeError:
-            pass
-        try:
-            return weakref.ref(callback)
-        except TypeError:
-            return None
+            strategy_s1(ticker_data)
 
-    def _snapshot_live_callbacks(self) -> List[Callable[[dict], None]]:
-        with self._callbacks_lock:
-            live_refs = []
-            live = []
-            for ref in self._callbacks:
-                cb = ref()
-                if cb is None:
-                    continue
-                live_refs.append(ref)
-                live.append(cb)
-            self._callbacks = live_refs
-        return live
-
-    # -------------------------------------------------------------- #
-    # Message handling
-    # -------------------------------------------------------------- #
-
-    def _handle_message(self, message: dict) -> None:
-        if message.get("type") != "message":
-            return
-        try:
-            data = json.loads(message.get("data"))
-        except (TypeError, ValueError) as e:
-            logger.error("JSON decode error: %s", e)
-            return
-
-        ticker_data = data.get("price_data") or {}
-        product_id = ticker_data.get("product_id") or data.get("product_id")
-
-        # Heavy work goes to the worker pool, NOT the reader thread.
-        if product_id:
-            _work_pool.submit(product_id, ticker_data)
-
-        # Fan out to SSE/WebSocket callbacks. Bounded queue per callback
-        # is the caller's responsibility (see views.py / consumers.py).
-        for cb in self._snapshot_live_callbacks():
+            redis_store_price(ticker_data)
             try:
-                cb(data)
-            except Exception:
-                logger.exception("Callback error")
-
-    # -------------------------------------------------------------- #
-    # Lifecycle
-    # -------------------------------------------------------------- #
-
-    def start(self, background: bool = True) -> "RedisPriceSubscriber":
-        with self._lifecycle_lock:
-            if self.running:
-                return self
-            if not self.pubsub:
-                self.connect()
-                if self._subscribed_channel is None:
-                    self.subscribe()
-            self.running = True
-            _work_pool.start()
-            if background:
-                self.thread = threading.Thread(
-                    target=self._run,
-                    name=f"redis-sub-{self.product_id or 'all'}",
-                    daemon=True,
-                )
-                self.thread.start()
-                logger.info("Redis subscriber started in background")
-            else:
-                self._run()
-        return self
+                # Call all registered callbacks
+                for callback in self.callbacks:
+                    try:
+                        callback(data)
+                    except Exception as e:
+                        logger.error(f"Callback error: {e}")
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decode error: {e}")
 
     def _run(self) -> None:
         while self.running:

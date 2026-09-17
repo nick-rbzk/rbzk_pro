@@ -92,17 +92,15 @@ async def subscribe_to_updates(request, product_id: Optional[str] = None):
                     except asyncio.QueueEmpty:
                         break
                     yield f"data: {json.dumps({'type': 'update', 'data': msg})}\n\n"
-                    drained += 1
-
-                now = time.monotonic()
-                if now - last_heartbeat > SSE_HEARTBEAT_INTERVAL:
-                    yield f"event: heartbeat\ndata: {json.dumps({'type': 'heartbeat'})}\n\n"
-                    last_heartbeat = now
-
-                await asyncio.sleep(SSE_POLL_INTERVAL)
-
-        except asyncio.CancelledError:
-            logger.info("SSE client disconnected (cancelled)")
+                
+                await asyncio.sleep(0.1)
+                
+        except GeneratorExit:
+            await sync_to_async(subscriber.stop)()
+            logger.info("SSE client disconnected")
+        except Exception as e:
+            logger.error(f"SSE error: {e}")
+            await sync_to_async(subscriber.stop)()
             raise
         except GeneratorExit:
             logger.info("SSE client disconnected (generator closed)")
