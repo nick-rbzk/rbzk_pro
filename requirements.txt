@@ -5,6 +5,7 @@ django-redis==6.0.0
 flower==1.2.0
 psycopg==3.3.2
 psycopg-binary==3.3.2
+boto3==1.43.93
 django-celery-beat==2.9.0
 channels==4.0.0
 channels-redis==4.1.0

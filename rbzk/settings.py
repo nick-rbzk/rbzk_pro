@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'cb_trades',
     'cb_mark',
     'cb_page',
+    'aws'
 ]
 
 
@@ -245,6 +246,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "assetfiles",
 ]
 
+TEMP_UPLOADS = 'temp_uploads'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -270,12 +273,30 @@ TRADES_CACHE_TIMEOUT    = 259200 # Three Days
 CACHE_TRADES_BIN_NAME   = 'last_trades'
 
 # Coinbase trade capital allocation
-
 USD_PER_TRADE = 2000
+
+# AWS setup
+AWS_ACCESS_KEY_ID       = os.environ.get('AWS_ACCESS_KEY_ID', None)
+AWS_SECRET_ACCESS_KEY   = os.environ.get('AWS_SECRET_ACCESS_KEY', None)
+AWS_S3_REGION_NAME      = os.environ.get('AWS_S3_REGION_NAME', None)
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME', None)
+AWS_S3_USE_SSL          = True
+AWS_S3_CUSTOM_DOMAIN    = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_S3_FILE_OVERWRITE   = False  # Prevent overwriting files with same name
+# AWS_DEFAULT_ACL         = 'public-read'  # For static files
+AWS_QUERYSTRING_AUTH    = False  # Don't add auth parameters to static URLs
+AWS_S3_URL_PROTOCOL = 'https:'  # Use https
+
+# AWS_S3_OBJECT_PARAMETERS = {
+#     'CacheControl': 'max-age=86400',  # Cache for 1 day
+# }
+# AWS_LOCATION = 'static'  # Optional: folder prefix within bucket
+# AWS_QUERYSTRING_AUTH = False  # Don't add auth parameters to static URLs
+AWS_S3_FILE_OVERWRITE = False  # Prevent overwriting existing files with same name
+# AWS_S3_ADDRESSING_STYLE = 'auto'
 
 
 # Email settings
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.privateemail.com'  # PrivateEmail SMTP server
 EMAIL_PORT = 587  # Typically 587 for TLS, 465 for SSL

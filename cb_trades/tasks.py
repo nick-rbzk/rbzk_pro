@@ -6,6 +6,7 @@ from celery import shared_task
 from cb_mark.models import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
+from aws.tasks import aws_upload_price_log
 from rbzk.settings import CACHE_BIN_KEYS, CACHE_BIN_TIMEOUT, \
     USD_PER_TRADE, CACHE_STORAGE_PREFIX, TRADES_CACHE_TIMEOUT
 from emails.tasks import trade_opened_email, trade_closed_email, ten_day_event_email
@@ -123,17 +124,8 @@ def db_store_price():
                 price_log.low_price = Decimal(db_data[key]['low_price'])
                 price_log.open_price = Decimal(db_data[key]['open_24h'])
                 set_highs_and_lows.delay()
-            message_store = db_data[key]["message_q"] 
-            for message in message_store:
-                price_data = {}
-                for field in TARGET_DB_PRICE_HISTORY_FIELDS:
-                        if field in message:
-                            price_data[field] = message[field]
-
-                price_data = json.dumps(price_data)
-                # TODO 
-                # save price history in to a file, upload to aws
-                # price_log.price_history.append(price_data) 
+            
+            aws_upload_price_log.delay(db_data[key]["message_q"], key)
 
             current_price = Decimal(db_data[key]['last_price'])
             if current_price > price_log.high_price :
@@ -162,7 +154,6 @@ def db_store_price():
             price_log.save()
             del price_log
             del yestarday_dpl
-            del message_store
             logger.info(f"Price log update SUCCESS")
         except Exception as e:
             logger.error(f"Error processing message: {e}")
@@ -534,7 +525,6 @@ def strategy_s1(ticker_data, *args, **kwargs):
 
                     highs_lows[product_id]["lowest_55day"] = current_price
                     cache.set("highs_lows", highs_lows, TRADES_CACHE_TIMEOUT)
-
     
     # TODO upadate highs and lowsin chache
     # with curent comparison
