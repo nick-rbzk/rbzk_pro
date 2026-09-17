@@ -38,5 +38,7 @@ COINBASE_API_KEY="organizations/5d725a29-11c7-439b-b1da-2a940b5ecd6c/apiKeys/4f2
 COINBASE_API_SECRET="-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEICZTStwfk31r4ffYu5zje8GhU7vdr6Jbw5DKBVUisAGFoAoGCCqGSM49\nAwEHoUQDQgAE3prSu4ILzdAtOr+LSN4hk3ZDiYXNhDGdHlsqpWbt7gymjzm6RUpk\nQFL/+LSHKDuwe/DtFuMO25Bxy1F8GCMQqg==\n-----END EC PRIVATE KEY-----\n"
 
 
+
+
 # Time zone config for docker containers
 export TZ="America/New_York"
