@@ -1,107 +1,158 @@
 """
 Django Channels WebSocket consumer for real-time price updates.
-Connects to Redis pub/sub and forwards messages to WebSocket clients.
+
+Uses the shared RedisPriceSubscriber (see redis_pubsub.py). Each connection
+registers a bounded asyncio.Queue-backed callback and removes it on
+disconnect, so no per-connection Redis client, thread, or socket is leaked.
 """
 
-import json
-import redis
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.layers import get_channel_layer
-from django.conf import settings
+from __future__ import annotations
+
 import asyncio
+import json
+import logging
+from typing import Optional
+
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+from .redis_pubsub import get_price_subscriber
+
+
+logger = logging.getLogger(__name__)
+
+# Per-connection queue cap. If the client can't keep up, we drop the oldest.
+WS_QUEUE_MAXSIZE = 500
+
+# How often the consumer task wakes to drain the queue.
+WS_POLL_INTERVAL = 0.05
 
 
 class PriceConsumer(AsyncWebsocketConsumer):
     """
-    WebSocket consumer that subscribes to Redis pub/sub channels
-    and forwards price updates to connected clients.
+    WebSocket consumer that forwards Redis price updates to the client.
+
+    Implementation note: we do NOT open our own Redis connection per
+    connection. The shared subscriber fans out to all consumers, and each
+    consumer filters + enqueues into a bounded asyncio.Queue.
     """
-    
+
     async def connect(self):
-        """Handle WebSocket connection"""
-        self.product_id = self.scope['url_route']['kwargs'].get('product_id')
-        self.room_group_name = f'price_{self.product_id}' if self.product_id else 'price_all'
-        
-        # Join room group
+        self.product_id: Optional[str] = (
+            self.scope["url_route"]["kwargs"].get("product_id")
+        )
+        self.room_group_name = (
+            f"price_{self.product_id}" if self.product_id else "price_all"
+        )
+
         await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
+            self.room_group_name, self.channel_name
         )
-        
         await self.accept()
-        
-        # Start Redis subscription in background
-        asyncio.create_task(self.start_redis_subscription())
-        
-        # Send initial price
-        from .websocket_client import price_client
-        if self.product_id:
-            price = price_client.get_latest_price(self.product_id)
-            if price:
-                await self.send(text_data=json.dumps({
-                    'type': 'initial',
-                    'data': price
-                }))
-    
-    async def start_redis_subscription(self):
-        """Subscribe to Redis pub/sub channel and forward messages to WebSocket"""
-        redis_client = redis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
-            decode_responses=True
+
+        loop = asyncio.get_running_loop()
+        self._loop = loop
+        self._queue: asyncio.Queue = asyncio.Queue(maxsize=WS_QUEUE_MAXSIZE)
+        self._closed = False
+
+        subscriber = await asyncio.get_running_loop().run_in_executor(
+            None, get_price_subscriber
         )
-        pubsub = redis_client.pubsub()
-        
-        # Subscribe to product-specific channel or all updates
-        channel = f"coinbase:updates:{self.product_id}" if self.product_id else "coinbase:updates:all"
-        pubsub.subscribe(channel)
-        
-        # Forward messages to WebSocket
-        for message in pubsub.listen():
-            if message['type'] == 'message':
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'price_update',
-                        'data': message['data']
-                    }
-                )
-    
+
+        def _on_message(data: dict) -> None:
+            if self._closed:
+                return
+            if self.product_id:
+                ticker = data.get("price_data") or {}
+                if ticker.get("product_id") != self.product_id:
+                    return
+            try:
+                loop.call_soon_threadsafe(self._put_nowait_drop_oldest, data)
+            except RuntimeError:
+                pass
+
+        self._on_message = _on_message
+        subscriber.add_callback(_on_message)
+        self._subscriber = subscriber
+
+        self._drain_task = asyncio.create_task(self._drain_loop())
+
+    def _put_nowait_drop_oldest(self, item) -> None:
+        q = self._queue
+        if q.full():
+            try:
+                q.get_nowait()
+            except asyncio.QueueEmpty:
+                pass
+        try:
+            q.put_nowait(item)
+        except asyncio.QueueFull:
+            pass
+
+    async def _drain_loop(self) -> None:
+        try:
+            while not self._closed:
+                drained = 0
+                while drained < 50:
+                    try:
+                        msg = self._queue.get_nowait()
+                    except asyncio.QueueEmpty:
+                        break
+                    try:
+                        await self.send(text_data=json.dumps({
+                            "type": "update",
+                            "data": msg,
+                        }))
+                    except Exception:
+                        # Client probably gone; let disconnect handle cleanup.
+                        return
+                    drained += 1
+                await asyncio.sleep(WS_POLL_INTERVAL)
+        except asyncio.CancelledError:
+            raise
+        except Exception:
+            logger.exception("WS drain loop error")
+
     async def disconnect(self, close_code):
-        """Handle WebSocket disconnection"""
+        self._closed = True
+
+        # Remove callback first so no new messages are enqueued.
+        try:
+            self._subscriber.remove_callback(self._on_message)
+        except Exception:
+            logger.exception("Failed to remove WS callback")
+
+        # Cancel the drain task if still running.
+        task = getattr(self, "_drain_task", None)
+        if task is not None and not task.done():
+            task.cancel()
+            try:
+                await task
+            except (asyncio.CancelledError, Exception):
+                pass
+
         await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
+            self.room_group_name, self.channel_name
         )
-    
+
     async def receive(self, text_data):
-        """Handle incoming WebSocket messages (for client control)"""
         try:
             data = json.loads(text_data)
-            command = data.get('command')
-            
-            if command == 'subscribe':
-                product_id = data.get('product_id')
-                if product_id:
-                    new_group = f'price_{product_id}'
-                    await self.channel_layer.group_add(
-                        new_group,
-                        self.channel_name
-                    )
-                    await self.send(text_data=json.dumps({
-                        'type': 'subscribed',
-                        'product_id': product_id
-                    }))
-                    
         except json.JSONDecodeError:
-            await self.send(text_data=json.dumps({
-                'error': 'Invalid JSON'
-            }))
-    
+            await self.send(text_data=json.dumps({"error": "Invalid JSON"}))
+            return
+
+        if data.get("command") == "subscribe":
+            product_id = data.get("product_id")
+            if product_id:
+                new_group = f"price_{product_id}"
+                await self.channel_layer.group_add(new_group, self.channel_name)
+                await self.send(text_data=json.dumps({
+                    "type": "subscribed",
+                    "product_id": product_id,
+                }))
+
     async def price_update(self, event):
-        """Send price update to WebSocket client"""
         await self.send(text_data=json.dumps({
-            'type': 'update',
-            'data': json.loads(event['data'])
+            "type": "update",
+            "data": json.loads(event["data"]),
         }))

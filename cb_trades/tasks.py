@@ -59,7 +59,6 @@ def redis_store_price(ticker_data):
                 return True
         else:
             logger.error("Storage Bin was not Found", bins)
-            print("All bins", bins)
             logger.error("Missing bin to use for precessing", bin_to_use)
             return False
 
@@ -323,11 +322,30 @@ def strategy_s1(ticker_data, *args, **kwargs):
     current_price   = Decimal(ticker_data.get('price'))
     product_id      = ticker_data.get('product_id')
     last_trade      = cache_get_last_trade(product_id)
-    if not isinstance(last_trade, dict) or last_trade is None:
-        # most def needs to be redone
-        last_trade = Trade.objects.filter(ticker_symbol=product_id).order_by("created_at").last()
-        cache_update_last_trades(last_trade, product_id)
-        
+    if not isinstance(last_trade, dict):
+        # Fall back to DB, then cache a dict-shaped snapshot.
+        db_trade = (
+            Trade.objects.filter(ticker_symbol=product_id)
+            .order_by("created_at")
+            .last()
+        )
+        if db_trade is not None:
+            last_trade = {
+                "uid": str(db_trade.uid),
+                "state": db_trade.state,
+                "type": db_trade.type,
+                "enter_price": db_trade.enter_price,
+                "stop_loss_price": db_trade.stop_loss_price,
+                "profit_loss": db_trade.profit_loss,
+                "buy_signal": {
+                    "trend_period": getattr(db_trade.buy_signal, "trend_period", None),
+                } if db_trade.buy_signal else {},
+            }
+            cache_update_last_trades(last_trade, product_id)
+        else:
+            last_trade = {}
+
+
     highest_20day   = highs_lows[product_id]["highest_20day"]
     lowest_20day    = highs_lows[product_id]["lowest_20day"]
     highest_10day   = highs_lows[product_id]["highest_10day"]
@@ -338,23 +356,22 @@ def strategy_s1(ticker_data, *args, **kwargs):
     # My own preferance
     if current_price > highest_10day:
         if not lock_aquired('HIGH_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info(f"EmailAlert with id:{last_trade.get("uid")} has already been sent")
+            logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
         else:
             ten_day_event_email.delay(product_id, current_price, 'HIGH')
     if current_price < lowest_10day:
         if not lock_aquired('LOW_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info(f"EmailAlert with id:{last_trade.get("uid")} has already been sent")
+            logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
         else:
             ten_day_event_email.delay(product_id, current_price, 'LOW')
 
     if last_trade.get('state') == TradeState.OPEN:
-
         # stop Loss mitigation
         if isinstance(last_trade.get('stop_loss_price'), Decimal):
             if last_trade.get('type') == TradeType.SHORT:
                 if current_price >= last_trade.get('stop_loss_price'):
                     if not lock_aquired('STOP_LOSS_SHORT_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         close_trade.delay(last_trade, current_price, product_id, TrendPeriod.STOP_LOSS)
@@ -363,8 +380,9 @@ def strategy_s1(ticker_data, *args, **kwargs):
 
             if last_trade.get('type') == TradeType.LONG:
                 if current_price <= last_trade.get('stop_loss_price'):
+                    
                     if not lock_aquired('STOP_LOSS_LONG_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         close_trade.delay(last_trade, current_price, product_id, TrendPeriod.STOP_LOSS)
@@ -379,7 +397,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
                 if current_price > highest_10day:
                     # sell the asset
                     if not lock_aquired('10_DAY_HIGH_SHORT_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         logger.info("Price broke 10 day HIGH. CLOSING SHORT.")
@@ -394,7 +412,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
                 if current_price < lowest_10day:
                     # sell the asset
                     if not lock_aquired('10_DAY_LOW_LONG_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         logger.info("Price broke 10 day LOW. CLOSING LONG.")
@@ -412,7 +430,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
                 if current_price > highest_20day:
                     # sell the asset
                     if not lock_aquired('20_DAY_HIGH_SHORT_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         logger.info("Price broke 20 day HIGH. CLOSING SHORT.")
@@ -427,7 +445,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
                 if current_price < lowest_20day:
                     # sell the asset
                     if not lock_aquired('20_DAY_LOW_LONG_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
-                        logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                        logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
                     else:
                         logger.info("Price broke 20 day LOW. CLOSING LONG.")
@@ -444,7 +462,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
             # Open trade if the price braks out 20 day high or 20 day low
             if current_price > highest_20day:
                 if not lock_aquired('20_DAY_HIGH_LONG_OPEN', product_id, last_trade.get('uid'), lock_for_hours=1):
-                    logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                    logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                     return f"Trade id {last_trade.get('uid')} is already closed."
                 else:
                     logger.info("Price broke 20 day HIGH. Opening a LONG Trade for %s", product_id)
@@ -463,7 +481,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
             if current_price < lowest_20day:
                 # Breakout signal buy short
                 if not lock_aquired('20_DAY_LOW_SHORT_OPEN', product_id, last_trade.get('uid'), lock_for_hours=1):
-                    logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                    logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                     return f"Trade id {last_trade.get('uid')} is already closed."
                 else:
                     logger.info("Price broke 20 day LOW. Opening a SHORT Trade for %s", product_id)
@@ -484,7 +502,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
             if current_price > highest_55day:
                 # Breakout signal buy long
                 if not lock_aquired('55_DAY_HIGH_LONG_OPEN', product_id, last_trade.get('uid'), lock_for_hours=1):
-                    logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                    logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                     return f"Trade id {last_trade.get('uid')} is already closed."
                 else:
                     logger.info("Price broke 55 day HIGH. Opening a LONG Trade")
@@ -502,7 +520,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
             if current_price < lowest_55day:
                 # Breakout signal buy short
                 if not lock_aquired('55_DAY_LOW_SHORT_OPEN', product_id, last_trade.get('uid'), lock_for_hours=1):
-                    logger.info(f"Trade id {last_trade.get('uid')} is already closed.")
+                    logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                     return f"Trade id {last_trade.get('uid')} is already closed."
                 else:
                     logger.info("Price broke 55 day LOW. Opening a SHORT Trade")
