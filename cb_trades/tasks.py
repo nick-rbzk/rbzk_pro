@@ -347,12 +347,14 @@ def strategy_s1(ticker_data, *args, **kwargs):
     # My own preferance
     if current_price > highest_10day:
         if not lock_aquired('HIGH_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
+            # logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
+            pass
         else:
             ten_day_event_email.delay(product_id, current_price, 'HIGH')
     if current_price < lowest_10day:
         if not lock_aquired('LOW_BREAK', product_id, 'EMAIL', lock_for_hours=1):
-            logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
+            # logger.info("EmailAlert with id: %s has already been sent", last_trade.get("uid"))
+            pass
         else:
             ten_day_event_email.delay(product_id, current_price, 'LOW')
 
@@ -360,7 +362,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
         # stop Loss mitigation
         if isinstance(last_trade.get('stop_loss_price'), Decimal):
             if last_trade.get('type') == TradeType.SHORT:
-                if current_price >= last_trade.get('stop_loss_price'):
+                if current_price > last_trade.get('stop_loss_price'):
                     if not lock_aquired('STOP_LOSS_SHORT_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
                         logger.info("Trade id %s is already closed.", last_trade.get("uid"))
                         return f"Trade id {last_trade.get('uid')} is already closed."
@@ -370,7 +372,7 @@ def strategy_s1(ticker_data, *args, **kwargs):
                         cache_update_last_trades(last_trade, product_id)
 
             if last_trade.get('type') == TradeType.LONG:
-                if current_price <= last_trade.get('stop_loss_price'):
+                if current_price < last_trade.get('stop_loss_price'):
                     
                     if not lock_aquired('STOP_LOSS_LONG_CLOSE', product_id, last_trade.get('uid'), lock_for_hours=1):
                         logger.info("Trade id %s is already closed.", last_trade.get("uid"))
