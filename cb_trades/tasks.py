@@ -123,7 +123,6 @@ def db_store_price():
                 price_log.high_price = Decimal(db_data[key]['high_price'])
                 price_log.low_price = Decimal(db_data[key]['low_price'])
                 price_log.open_price = Decimal(db_data[key]['open_24h'])
-                set_highs_and_lows.delay()
             
             aws_upload_price_log.delay(db_data[key]["message_q"], key)
 
@@ -152,8 +151,8 @@ def db_store_price():
 
             price_log.last_price = current_price
             price_log.save()
-            del price_log
-            del yestarday_dpl
+            if created:
+                set_highs_and_lows.delay()
             logger.info(f"Price log update SUCCESS")
         except Exception as e:
             logger.error(f"Error processing message: {e}")
