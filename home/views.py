@@ -30,22 +30,25 @@ def home_page(request):
 
 
 def contact_api(request):
-    navigator_from_request = request.META['HTTP_USER_AGENT']
-    decoded = request.body.decode('ascii')
-    body = json.loads(decoded)
-    if "token" in body:
-        b_navigator_js = base64.b64decode(body["token"])
-        navigator_from_js = escape(b_navigator_js.decode('ascii'))
-    if "name" in body["submissionObject"]:
-        name = escape(body["submissionObject"]["name"])
-    if "email" in body["submissionObject"]:
-        email = escape(body["submissionObject"]["email"])
-    if "phone" in body["submissionObject"]:
-        phone = escape(body["submissionObject"]["phone"])
-    if "message" in body["submissionObject"]:
-        message = escape(body["submissionObject"]["message"])
-    if navigator_from_request == navigator_from_js:
-        navigators_match = True
+    try:
+        navigator_from_request = request.META['HTTP_USER_AGENT']
+        decoded = request.body.decode('ascii')
+        body = json.loads(decoded)
+        if "token" in body:
+            b_navigator_js = base64.b64decode(body["token"])
+            navigator_from_js = escape(b_navigator_js.decode('ascii'))
+        if "name" in body["submissionObject"]:
+            name = escape(body["submissionObject"]["name"])
+        if "email" in body["submissionObject"]:
+            email = escape(body["submissionObject"]["email"])
+        if "phone" in body["submissionObject"]:
+            phone = escape(body["submissionObject"]["phone"])
+        if "message" in body["submissionObject"]:
+            message = escape(body["submissionObject"]["message"])
+        if navigator_from_request == navigator_from_js:
+            navigators_match = True
+    except Exception as e:
+        pass
 
     try:
         FormSubmission.objects.create(
@@ -58,7 +61,7 @@ def contact_api(request):
             navigator_string_from_request=navigator_from_request,
         )
     except Exception as e:
-        print(e)
+        pass
     return JsonResponse({"response": 200})
 
 @never_cache

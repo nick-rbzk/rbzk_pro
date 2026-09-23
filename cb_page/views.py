@@ -14,7 +14,7 @@ from typing import Optional
 import requests
 from asgiref.sync import sync_to_async
 from django.db.models import Q
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, Http404
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -141,6 +141,10 @@ def websocket_service_status(request):
 
 class TradingDashboardView(TemplateView):
     template_name = "price_dash.html"
+    def dispatch(self, request, *args, **kwargs):
+        if not (request.user.is_authenticated and request.user.is_staff):
+            raise Http404("Page not found")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -169,7 +173,6 @@ class TradingDashboardView(TemplateView):
 class TradingPairsAPIView(View):
     def get(self, request):
         try:
-            print("test")
             pairs = TradingPair.objects.all().order_by("ticker_symbol")
             trades = Trade.objects.filter(state=TradeState.OPEN)
             data = {

@@ -935,7 +935,7 @@
     }
 
     function fetchInitialData() {
-        fetch('/trade-dash/api/trading-pairs/')
+        fetch('/nbrbth4yh67/api/trading-pairs/')
             .then(response => response.json())
             .then(data => {
                 tradingPairs = data.trading_pairs;
@@ -1343,7 +1343,7 @@
     }
 
     function setupWebSocket() {
-        const eventSource = new EventSource('{{domain}}/trade-dash/api/stream/');
+        const eventSource = new EventSource('{{domain}}/nbrbth4yh67/api/stream/');
         
         eventSource.onopen = function() {
             updateStatus('connected');
@@ -1425,7 +1425,7 @@
         const updateBtn = document.getElementById('updatePairsBtn');
         updateBtn.disabled = true;
         
-        fetch('/trade-dash/api/update-pairs/', {
+        fetch('/nbrbth4yh67/api/update-pairs/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1438,7 +1438,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                return fetch('/trade-dash/api/trading-pairs/');
+                return fetch('/nbrbth4yh67/api/trading-pairs/');
             } else {
                 throw new Error(data.message || 'Update failed');
             }

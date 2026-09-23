@@ -11,12 +11,17 @@ handler403 = 'error_views.views.permission_denied'
 handler404 = 'error_views.views.page_not_found'
 handler500 = 'error_views.views.server_error'
 
+if settings.DEBUG:
+    admin_url = "admin/"
+else:
+    admin_url = "89ee14c8c7cb465faa10ec1a5e142fd3/"
+
 
 urlpatterns = [
-    path('89ee14c8c7cb465faa10ec1a5e142fd3/', admin_site.urls),
+    path(admin_url, admin_site.urls),
     # path('89ee14c8c7cb465faa10ec1a5e142fd3/', admin.site.urls),
     path('', include("home.urls")),
-    path('', include("cal_stats.urls")),
+    # path('', include("cal_stats.urls")),
     path('', include('cb_mark.urls')),
-    path('trade-dash/', include("cb_page.urls"))
+    path('nbrbth4yh67/', include("cb_page.urls"))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

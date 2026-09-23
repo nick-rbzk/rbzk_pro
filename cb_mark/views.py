@@ -9,16 +9,16 @@ from .forms import TradingPairForm
 
 @csrf_exempt
 def trading_options(request):   
-    set_cache_bins()
-    print(cache.get('bin1'))
-    print(cache.get('bin2'))
-    print(cache.get("highs_lows"))
-    print(cache.get("bin1_STORAGE"))
-    print(cache.get("bin2_STORAGE"))
-    print(cache.get("last_trades"))
-
-    context = {}
     if request.user.is_authenticated & request.user.is_staff:
+        set_cache_bins()
+        print(cache.get('bin1'))
+        print(cache.get('bin2'))
+        print(cache.get("highs_lows"))
+        print(cache.get("bin1_STORAGE"))
+        print(cache.get("bin2_STORAGE"))
+        print(cache.get("last_trades"))
+
+        context = {}
         if request.method == "GET":
             context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
             context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
@@ -42,4 +42,4 @@ def trading_options(request):
             context["active_pairs_form"] = TradingPairForm({'action': '0'}, is_active=True)
             context["inactive_pairs_form"] = TradingPairForm({'action': '1'}, is_active=False)
         return render(request, 'trader.html', context)
-    return redirect("home")
+    return redirect("home_page")
