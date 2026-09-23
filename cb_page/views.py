@@ -169,6 +169,7 @@ class TradingDashboardView(TemplateView):
 class TradingPairsAPIView(View):
     def get(self, request):
         try:
+            print("test")
             pairs = TradingPair.objects.all().order_by("ticker_symbol")
             trades = Trade.objects.filter(state=TradeState.OPEN)
             data = {
