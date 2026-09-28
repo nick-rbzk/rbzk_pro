@@ -189,22 +189,42 @@
 
 {% block content %}
 <div class="dashboard-container">
-    
+
+    <h2>💰💰 Future Income 💰💰</h2>
     <div class="stats-grid">
-        
+
         <div class="stat-card approved">
-            <div class="stat-label">After Tax Income</div>
-            <div class="stat-value">{{ income_after_tax|default:0 }}</div>
+            <div class="stat-label">After Tax</div>
+            <div class="stat-value">{{ unpaid_after_tax|default:0 }}$</div>
+        </div>
+        <div class="stat-card pending">
+            <div class="stat-label">Taxes Owed.</div>
+            <div class="stat-value">{{ unpaid_tax_total|default:0 }}$</div>
+        </div>
+         <div class="stat-card plain">
+            <div class="stat-label">Total</div>
+            <div class="stat-value">{{ unpaid_income|default:0 }}$</div>
+        </div>       
+    </div>
+
+
+    <h2>‼️ Year's Stats ‼️</h2>
+    <div class="stats-grid">
+        <div class="stat-card approved">
+            <div class="stat-label">Yearly After Tax Income</div>
+            <div class="stat-value">{{ income_after_tax|default:0 }}$</div>
         </div>
         <div class="stat-card pending">
             <div class="stat-label">Taxes Owed This Year.</div>
-            <div class="stat-value">{{ tax_total|default:0 }}</div>
+            <div class="stat-value">{{ tax_total|default:0 }}$</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Income</div>
-            <div class="stat-value">{{ income_total|default:0 }}</div>
+            <div class="stat-value">{{ income_total|default:0 }}$</div>
         </div>
     </div>
+    
+
     
     <div class="dashboard-grid">
         <div class="module">

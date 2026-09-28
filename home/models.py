@@ -39,6 +39,7 @@ class ParkJob(models.Model):
     confirmation    = models.CharField(max_length=1024, blank=False, null=True)
     notes           = models.TextField(blank=True, null=True)
     workweek        = models.ForeignKey(WorkWeek, on_delete=models.CASCADE)
+    is_paid         = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-job_end"]

@@ -8,8 +8,8 @@ admin_site.register(FormSubmission)
 
 # @admin.register(ParkJob)
 class ParkJobAdmin(admin.ModelAdmin):
-    list_display    = ("confirmation", "after_tax", "tax_total", "total", "jb_start", "jb_end")
-    list_filter     = ("job_start", "job_end")
+    list_display    = ("confirmation", "is_paid", "after_tax", "tax_total", "total", "jb_start", "jb_end")
+    list_filter     = ("job_start", "job_end", "is_paid",)
     search_fields   = ("confirmation", "job_start", "job_end")
 
     def jb_start(self, obj):

@@ -60,7 +60,23 @@ class CustomAdminSite(AdminSite):
         federal_owed = federal_income_tax(income)
         total = self_employ_owed + federal_owed
         return total
-    
+
+    def unpaid_income(self):
+        unpaid_jobs = ParkJob.objects.filter(is_paid=False)
+        unpaid_income_total = 0
+        income_after_tax = 0
+        tax_total = 0
+        if len(unpaid_jobs) > 0:
+            for j in unpaid_jobs:
+                unpaid_income_total += float(j.job_income())
+                tax_total += self.tax_total(j)
+            income_after_tax = unpaid_income_total  - tax_total
+            income_after_tax =  '{0:.2f}'.format(income_after_tax)
+            unpaid_income_total =  '{0:.2f}'.format(unpaid_income_total)
+            tax_total =  '{0:.2f}'.format(tax_total)
+        return unpaid_income_total, income_after_tax, tax_total
+
+
     def custom_dashboard(self, request):
         """Main custom dashboard"""
         jobs = ParkJob.objects.all() 
@@ -91,9 +107,11 @@ class CustomAdminSite(AdminSite):
             income_total += float(j.job_income())
             tax_total += self.tax_total(j)
         income_after_tax = income_total  - tax_total
-        income_after_tax =  '{0:.2f}$'.format(income_after_tax)
-        income_total =  '{0:.2f}$'.format(income_total)
-        tax_total =  '{0:.2f}$'.format(tax_total)
+        income_after_tax =  '{0:.2f}'.format(income_after_tax)
+        income_total =  '{0:.2f}'.format(income_total)
+        tax_total =  '{0:.2f}'.format(tax_total)
+
+        unpaid_income_total, unpaid_after_tax, unpaid_tax_total = self.unpaid_income()
 
         context = dict(
             self.each_context(request),
@@ -104,6 +122,9 @@ class CustomAdminSite(AdminSite):
             tax_total=tax_total,
             income_after_tax=income_after_tax,
             opts=ParkJob._meta,
+            unpaid_income=unpaid_income_total,
+            unpaid_after_tax=unpaid_after_tax,
+            unpaid_tax_total=unpaid_tax_total, 
         )
 
         # ("confirmation", "after_tax", "tax_total", "total", "jb_start", "jb_end")
