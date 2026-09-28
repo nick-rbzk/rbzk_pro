@@ -237,6 +237,7 @@
                             <th style="padding: 12px; text-align: left;">Income After Tax</th>
                             <th style="padding: 12px; text-align: left;">Taxes Owed</th>
                             <th style="padding: 12px; text-align: left;">Total Income</th>
+                            <th style="padding: 12px; text-align: left;">Paid</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -262,8 +263,8 @@
                                     {{ job.job_income }}$
                                 </span>
                             </td>
-                                                        <td style="padding: 10px;" data-label="Total Income">
-                                <span class="status-badge status-plain">
+                            <td style="padding: 10px;" data-label="Paid">
+                                <span >
                                     {% if job.is_paid %}
                                         ✅
                                     {% else %}
