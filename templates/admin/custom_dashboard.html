@@ -240,26 +240,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for post in jobs %}
+                        {% for job in jobs %}
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 10px;" data-label="Confirmation">
-                                <a href="{% url 'AdminDashboardFlow:home_parkjob_change' post.id %}">
-                                    {{ post.confirmation }}
+                                <a href="{% url 'AdminDashboardFlow:home_parkjob_change' job.id %}">
+                                    {{ job.confirmation }}
                                 </a>                            
                             </td>
                             <td style="padding: 10px;" data-label="Income After Tax">
                                 <span class="status-badge status-approved">
-                                    {{ post.income_after_tax }}$
+                                    {{ job.income_after_tax }}$
                                 </span>
                             </td>
                             <td style="padding: 10px;" data-label="Taxes Owed">
                                 <span class="status-badge status-pending">
-                                    {{ post.taxes_owed }}$
+                                    {{ job.taxes_owed }}$
                                 </span>
                             </td>
                             <td style="padding: 10px;" data-label="Total Income">
                                 <span class="status-badge status-plain">
-                                    {{ post.job_income }}$
+                                    {{ job.job_income }}$
+                                </span>
+                            </td>
+                                                        <td style="padding: 10px;" data-label="Total Income">
+                                <span class="status-badge status-plain">
+                                    {% if job.is_paid %}
+                                        ✅
+                                    {% else %}
+                                        ❌
+                                    {% endif %}
                                 </span>
                             </td>
                         </tr>
