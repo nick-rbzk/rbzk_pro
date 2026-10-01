@@ -12,8 +12,6 @@ services:
     depends_on:
       - web
       - flower
-    networks:
-      - rbzk_network
 
 
   websocket-service:
@@ -38,8 +36,6 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -68,8 +64,6 @@ services:
         condition: service_started
       websocket-service:
         condition: service_started
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -84,8 +78,6 @@ services:
       - POSTGRES_DB=hello_django
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
-    networks:
-      - rbzk_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hello_django -d hello_django"]
       interval: 5s
@@ -115,8 +107,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -127,8 +117,6 @@ services:
     image: rabbitmq:3-management
     env_file:
       - ./environment/.prod
-    networks:
-      - rbzk_network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 5s
@@ -156,8 +144,6 @@ services:
       - db
       - redis
       - rabbitmq
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -180,8 +166,6 @@ services:
       - db
       - redis
       - rabbitmq
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -205,8 +189,6 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
@@ -232,17 +214,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-    networks:
-      - rbzk_network
     deploy:
       resources:
         limits:
           memory: 512M
-
-networks:
-  rbzk_network:
-    driver: bridge
-
 
 volumes:
   postgresData:
